@@ -40,6 +40,16 @@ def is_captureable(Board,i,j,n,player):
                             return (i+1,j-1)
                         if Board[i][j+1] == '' & Board[i+1][j-1] == player:
                             return (i,j+1)
+                        
+                        
+                        # right side horizontal three piece fork
+                        if (i < (n-2)):
+                            if (Board[i][j+1] == '' & Board[i+1][j-1] == '' & Board[i+2][j] == ''):
+                                if (Board[i+1][j+1] == opp):
+                                    return (i,j+1)
+                                if (Board[i+2][j-1] == opp):
+                                    return (i+1,j-1)
+
 
                 if (i > 0):
                     # opp piece to the left
@@ -48,6 +58,15 @@ def is_captureable(Board,i,j,n,player):
                             return (i,j-1)
                         if Board[i-1][j+1] == '' & Board[i][j-1] == player:
                             return (i-1,j+1)
+                        
+                        # left side horizontal three piece fork
+                        if (i > 1):
+                            if (Board[i-1][j+1] == '' & Board[i][j-1] == '' & Board[i-2][j] == ''):
+                                if (Board[i-2][j+1] == opp):
+                                    return (i-1,j+1)
+                                if (Board[i-1][j-1] == opp):
+                                    return (i-1,j-1)
+                                    
             if (i > 0):
                 if (i < (n-1)):
                     # opp piece to the top right
@@ -56,6 +75,12 @@ def is_captureable(Board,i,j,n,player):
                             return (i+1,j)
                         if Board[i-1][j+1] == '' & Board[i+1][j] == player:
                             return (i-1,j+1)
+                        
+                        # left side vertical three piece fork
+                        if j > 0 & Board[i+1][j-1] == opp:
+                            if (Board[i-1][j+1] == '' & Board[i+1][j] == '' & Board[i][j-1] == ''):
+                                return (i+1,j)
+
             
                 # opp piece to the top left
                 if Board[i-1][j+1] == opp:
@@ -63,3 +88,9 @@ def is_captureable(Board,i,j,n,player):
                         return (i-1,j)
                     if Board[i][j+1] == '' & Board[i-1][j] == player:
                         return (i,j+1)
+                    
+                    # right side vertical three piece fork
+                    if j > 0 & i < (n-1) & Board[i][j-1] == opp:
+                        if (Board[i-1][j] == '' & Board[i][j+1] == '' & Board[i+1][j-1] == ''):
+                            return (i-1,j)
+
