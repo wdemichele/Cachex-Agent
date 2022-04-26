@@ -1,3 +1,4 @@
+import numpy
 
 class Player:
     def __init__(self, player, n):
@@ -9,7 +10,7 @@ class Player:
         play as Red, or the string "blue" if your player will play
         as Blue.
         """
-        # put your code here
+
 
     def action(self):
         """
