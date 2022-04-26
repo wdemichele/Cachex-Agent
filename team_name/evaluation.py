@@ -40,27 +40,6 @@ def is_captureable(Board,i,j,n,player):
                             return (i+1,j-1)
                         if Board[i][j+1] == '' & Board[i+1][j-1] == player:
                             return (i,j+1)
-                        
-                        
-                        # right side horizontal three piece fork
-
-                        if (i < (n-2)):
-                            if (Board[i][j+1] == '' & Board[i+1][j-1] == '' & Board[i+2][j] == ''):
-                                #      . . . . . .
-                                #     . . b r . .
-                                #    . . r r o .
-                                #   . . . o . .
-                                #  . . . . . .
-                                if (Board[i+1][j+1] == opp):
-                                    return (i,j+1)
-
-                                #      . . . . . .
-                                #     . . o . . .
-                                #    . . r r o .
-                                #   . . . b r .
-                                #  . . . . . .
-                                if (Board[i+2][j-1] == opp):
-                                    return (i+1,j-1)
 
 
                 if (i > 0):
@@ -70,25 +49,6 @@ def is_captureable(Board,i,j,n,player):
                             return (i,j-1)
                         if Board[i-1][j+1] == '' & Board[i][j-1] == player:
                             return (i-1,j+1)
-                        
-                        # left side horizontal three piece fork
-                        if (i > 1):
-                            if (Board[i-1][j+1] == '' & Board[i][j-1] == '' & Board[i-2][j] == ''):
-                                #      . . . . . .
-                                #     r b . . . .
-                                #    o r r . . .
-                                #   . . o . . .
-                                #  . . . . . .
-                                if (Board[i-2][j+1] == opp):
-                                    return (i-1,j+1)
-
-                                #      . . . . . .
-                                #     . o . . . .
-                                #    o r r . . .
-                                #   . r b . . .
-                                #  . . . . . .
-                                if (Board[i-1][j-1] == opp):
-                                    return (i-1,j-1)
 
             if (i > 0):
                 if (i < (n-1)):
@@ -111,14 +71,77 @@ def is_captureable(Board,i,j,n,player):
                         return (i-1,j)
                     if Board[i][j+1] == '' & Board[i-1][j] == player:
                         return (i,j+1)
-                    
-                    # right side vertical three piece fork
-                    if j > 0 & i < (n-1) & Board[i][j-1] == opp:
-                        if (Board[i-1][j] == '' & Board[i][j+1] == '' & Board[i+1][j-1] == ''):
-                            return (i-1,j)
     
-    if Board[i][j] == '':
+
+
+def is_forkable(Board,i,j,n,player):
+    opp = "r"
+    if (player == "r"):
+        opp = "b"
+
+    if Board[i][j] == opp:
+        # left side horizontal three piece fork
+        if (i > 1 & j < (n-1) & j > 0):
+            if (Board[i-1][j] == opp & Board[i-1][j+1] == '' & Board[i][j-1] == '' & Board[i-2][j] == ''):
+                #      . . . . . .
+                #     r b . . . .
+                #    o r r . . .
+                #   . . o . . .
+                #  . . . . . .
+                if (Board[i-2][j+1] == opp):
+                    return (i-1,j+1)
+
+                #      . . . . . .
+                #     . o . . . .
+                #    o r r . . .
+                #   . r b . . .
+                #  . . . . . .
+                if (Board[i-1][j-1] == opp):
+                    return (i-1,j-1)
         
+        # right side horizontal three piece fork
+        if (i < (n-2) & j < (n-1) & j > 0):
+            if (Board[i+1][j] == opp & Board[i][j+1] == '' & Board[i+1][j-1] == '' & Board[i+2][j] == ''):
+                #      . . . . . .
+                #     . . b r . .
+                #    . . r r o .
+                #   . . . o . .
+                #  . . . . . .
+                if (Board[i+1][j+1] == opp):
+                    return (i,j+1)
+
+                #      . . . . . .
+                #     . . o . . .
+                #    . . r r o .
+                #   . . . b r .
+                #  . . . . . .
+                if (Board[i+2][j-1] == opp):
+                    return (i+1,j-1)
+
+        
+        if (j > 0 & i < (n-1) & i > 0 & j < (n-1)):
+            # right side vertical three piece fork
+            #      . . . . . .
+            #     . . . o r .
+            #    . . . r b .
+            #   . . . o r .
+            #  . . . . . .
+            if (Board[i][j-1] == opp & Board[i-1][j+1] == opp):
+                if (Board[i-1][j] == '' & Board[i][j+1] == '' & Board[i+1][j-1] == ''):
+                    return (i-1,j)
+        
+            # left side vertical three piece fork
+            #      . . . . . .
+            #     . . r o . .
+            #    . . b r . .
+            #   . . r o . .
+            #  . . . . . .
+            if (Board[i][j+1] == opp & Board[i+1][j-1] == opp):
+                if (Board[i-1][j+1] == '' & Board[i+1][j] == '' & Board[i][j-1] == ''):
+                    return (i+1,j)
+       
+
+    elif Board[i][j] == '':
         if (i>1 & j>0 & i < (n-2) & j < (n-1)):
             # two column fork
             #     . . . . . .
