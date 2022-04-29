@@ -1,14 +1,13 @@
 import math
 
 def board_value(n):
-    Board = [[0]*n]*n
-    for i in range(n):
-        for j in range(n):
-            # basic evaluation that favours center pieces i.e:
-            # 1 2 1
-            # 2 3 2
-            # 1 2 1
-            Board[i][j] = n - abs(n/2 - i -0.5) - abs(n/2 - j -0.5)
+    # basic evaluation that favours center pieces i.e:
+    # 1 2 1
+    # 2 3 2
+    # 1 2 1
+
+    # Board Dict - Key: (i,j), Value (colour, tile value)
+    Board = {(i,j):('',(n - abs(n/2 - i -0.5) - abs(n/2 - j -0.5))) for i in range(0,n) for j in range(0,n)}
     return Board
 
 def is_captureable(Board,i,j,n,player):
