@@ -1,5 +1,6 @@
 import referee.board
 
+
 class Player:
     def __init__(self, player, n):
 
