@@ -1,6 +1,6 @@
 import structures
 
-PLAYER, OPPOSITION, EMPTY = 'r','b', ''
+PLAYER, OPPOSITION, EMPTY = 'r','b', 'e'
 
 class AStarNode:
     def __init__(self, parent, location):
@@ -35,34 +35,48 @@ def searchStart(n,occupiedBoard,start,goal,player):
 
     final_path = aStarSearch(start, goal, board, n, player)
     final_path.printPath(board, player)
+    # board.printBoard()
 
-def aStarHeuristic(location1, location2):
-    # Must be admissible - this means never overestimate, but can be correct or underestimate
-    # Assume an empty board, no obstacles for any path, use basic Manhattan distance as it always
-    # under-estimates in our problem domain
+def bonusHeuristic(board, location1, location2, boardSize, noCostColour, first): 
+    steps = 0 if board.board[board.size - 1 - location1.row][location1.column].colour == noCostColour else 1
     if location1 == location2:
-        return 1
-    deltaX = abs(location1.row - location2.row)
-    deltaY = abs(location1.column - location2.column)
-    return deltaY + deltaX
+        return steps
+    steps += 0 if board.board[board.size - 1 - location2.row][location2.column].colour == noCostColour else 1
 
-def bonusHeuristic(board, location1, location2, boardSize, noCostColour): 
-    if location1 == location2:
-        return 1
     deltaX = abs(location1.row - location2.row)
     deltaY = abs(location1.column - location2.column)
     yFree = xFree = 0
-    for col in range(boardSize):
+    xAvail = []
+    yAvail = []
+    xDir = yDir = 1
+    visited = []
+
+    if location1.row > location2.row:
+        xDir = -1
+    if location1.column > location2.column:
+        yDir = -1
+
+    for x in range(location1.row, location2.row + xDir*1, xDir):
+        xAvail.append(x)
+    for y in range(location1.column, location2.column + yDir*1, yDir):
+        yAvail.append(y)
+
+    for col in yAvail:
         for row in range(boardSize):
-            if board.board[row][col] == noCostColour:
+            if board.board[board.size - 1 - row][col].colour == noCostColour:
+                visited.append([boardSize - 1 - row,col])
                 yFree += 1
-                continue 	# max one free node per column
-    for col in range(boardSize):
-        for row in range(boardSize):
-            if board.board[row][col] == noCostColour:
-                yFree += 1 
-                continue 	# max one free node per row
-    return max(deltaX - xFree, 0) + max(deltaY - yFree, 0)
+                break 	# max one free node per column
+    for row in xAvail:
+        for col in range(boardSize):
+            if board.board[board.size - 1 - row][col].colour == noCostColour:
+                if [boardSize - 1 - row,col] not in visited:
+                    xFree += 1 
+                    break 	# max one free node per row
+    if first:
+        print(str(deltaX) +":"+str(xFree) +" | "+str(deltaY) +":"+str(yFree))
+
+    return max(deltaX - xFree, 0) + max(deltaY - yFree, 0) + steps
 
 
 def aStarSearch(start, goal, board, n, player):
@@ -91,8 +105,8 @@ def aStarSearch(start, goal, board, n, player):
         for move in next_moves:
             if move not in checked_list:
                 newMoveNode = AStarNode(curr, move)
-                newMoveNode.g = curr.g if board.board[move.row][move.column] == player else curr.g +1
-                newMoveNode.h = bonusHeuristic(board, move, goal, n, player)
+                newMoveNode.g = curr.g if board.board[board.size - 1 - move.row][move.column].colour == player else curr.g +1
+                newMoveNode.h = bonusHeuristic(board, move, goal, n, player, False)
                 newMoveNode.f = newMoveNode.h + newMoveNode.g
 
                 for node in queue.queue:

@@ -45,6 +45,14 @@ class Board:
                 elif self.board[self.size - 1 - new_location.row][new_location.column].colour == noCostColour:
                     retVal.append(new_location)
         return retVal
+    def printBoard(self):
+        for i in reversed(range(self.size)):
+            space = "     "*i
+            print(space, end = ' | ')
+            for j in range(self.size):
+                print("("+str(i)+","+str(j)+"):"+self.board[self.size - i - 1][j].colour, end = ' | ')
+            print()
+            print()
 
 
 class Path:
@@ -53,11 +61,13 @@ class Path:
 
     def printPath(self, board, player):
         length = len(self.path)
-        for tile in self.path:
-            if board.board[tile.row][tile.column] == player:
+        for tile in reversed(self.path):
+            print(f"({tile.row},{tile.column}): {board.board[board.size - 1 - tile.row][tile.column].colour}")
+            if board.board[board.size - 1 - tile.row][tile.column].colour == player:
                 length -= 1
-
+        print()
         print(length)
+        print()
         for location in reversed(self.path):
             row = location.row
             column = location.column
