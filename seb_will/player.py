@@ -40,8 +40,41 @@ class Player:
         else:
             self.board.place(player, (action[1], action[2]))
 
-    def alpha_beta_min(self):
-        pass
+    def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
 
-    def alpha_beta_max(self):
-        pass
+        if depth == DEPTH_LIMIT:
+            return eval_func(game_state)
+
+        if is_maximizing:
+            # set to number below minimum of eval func
+            max = MINIMAX_MIN
+
+            for move in get_reasonable_moves():
+
+                move_state = make_state_from_move(game_state, move)
+                value = alpha_beta_minimax(depth + 1, move_state, False, alpha, beta)
+
+                max = max(max, value)
+                alpha = max(alpha, max)
+
+                if beta <= alpha:
+                    # pruning principle
+                    break
+
+            return max
+        else:
+
+            min = MINIMAX_MAX
+            # Generate children
+            for move in get_reasonable_moves():
+
+                move_state = make_state_from_move(game_state, move)
+                value = alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)
+
+                min = min(min, value)
+                beta = min(beta, min)
+
+                if beta <= alpha:
+                    break
+
+            return min
