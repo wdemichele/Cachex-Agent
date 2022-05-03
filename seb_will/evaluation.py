@@ -2,11 +2,7 @@ import math
 
 PLAYER, OPPOSITION, EMPTY = 'r','b', ''
 
-def evaluate(board, player):
-    w1, w2, w3, w4 = 1, 2, 3, 4
-    f1, f2, f3, f4 = 1, 2, 3, 4
-    value = w1*f1 + w2*f2 + w3*f3 + w4*f4
-    return value
+
 
 def board_value(n):
     # basic evaluation that favours center pieces i.e:
@@ -184,11 +180,3 @@ def neighbours(board, i, j, n, visitable):
             if board[i1,j1][0] in visitable:
                 neighbours.append([i1,j1])
     return neighbours
-
-def longestAxisChain(board, i, j, n, visited, curChain):
-    for chain in len(visited):
-        if [i,j] in visited[chain]:
-            return visited
-    visitable = neighbours(board, i, j, n, [PLAYER,EMPTY])
-    # removes elements that have already been visited
-    visitable = list(set(visitable) - set(curChain))
