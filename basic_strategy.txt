@@ -1,0 +1,30 @@
+using minimax with alpha-beta pruning
+
+at start, too many moves to consider wiht little to no consequence
+
+if starting (red):
+place middle or random
+
+if not starting (blue):
+swap if they take corner, otherwise just place corner (corner strongest spot, blocks them and can be used for
+game winning path without risk of capture)
+
+for next 1-3 moves (depending on board size):
+if they have a corner, block
+if we do not have corner, go for corner
+otherwise just try to extend small start from corner towards goal
+
+then minimax with depth = 4:
+consider each move given from function get_reasonable_moves(state)
+apply minimax with these moves applied
+
+
+get_reasonable_moves(state):
+- blocking/congesting moves -> for each placed opposition, consider spots directly in their path to goal
+- extending path moves -> for your paths, see moves in direction of goal or other disconnected
+tokens that can be played
+- capture moves
+- random moves can also be added if the list returned by reasonable_moves is becoming too short
+- as number_of_moves approaches n^2, add more randoms to the list of reasonable moves, 
+and if they (n_moves and n^2) get feasibly close, consider all possible moves, 
+ which allows minimax to acheive near-perfect play

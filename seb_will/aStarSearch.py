@@ -1,6 +1,6 @@
 import structures
 
-PLAYER, OPPOSITION, EMPTY = 'r','b', 'e'
+PLAYER, OPPOSITION, EMPTY = 'red', 'blue', 'e'
 
 class AStarNode:
     def __init__(self, parent, location):
