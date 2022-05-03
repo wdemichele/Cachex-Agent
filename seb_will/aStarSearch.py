@@ -34,10 +34,11 @@ def searchStart(n,occupiedBoard,start,goal,player):
     goal = structures.Location(goal[0], goal[1])
 
     final_path = aStarSearch(start, goal, board, n, player)
-    final_path.printPath(board, player)
+    # final_path.printPath(board, player)
     # board.printBoard()
+    return (final_path.getLength(board, player))
 
-def bonusHeuristic(board, location1, location2, boardSize, noCostColour, first): 
+def bonusHeuristic(board, location1, location2, boardSize, noCostColour): 
     steps = 0 if board.board[board.size - 1 - location1.row][location1.column].colour == noCostColour else 1
     if location1 == location2:
         return steps
@@ -73,8 +74,6 @@ def bonusHeuristic(board, location1, location2, boardSize, noCostColour, first):
                 if [boardSize - 1 - row,col] not in visited:
                     xFree += 1 
                     break 	# max one free node per row
-    if first:
-        print(str(deltaX) +":"+str(xFree) +" | "+str(deltaY) +":"+str(yFree))
 
     return max(deltaX - xFree, 0) + max(deltaY - yFree, 0) + steps
 
@@ -106,7 +105,7 @@ def aStarSearch(start, goal, board, n, player):
             if move not in checked_list:
                 newMoveNode = AStarNode(curr, move)
                 newMoveNode.g = curr.g if board.board[board.size - 1 - move.row][move.column].colour == player else curr.g +1
-                newMoveNode.h = bonusHeuristic(board, move, goal, n, player, False)
+                newMoveNode.h = bonusHeuristic(board, move, goal, n, player)
                 newMoveNode.f = newMoveNode.h + newMoveNode.g
 
                 for node in queue.queue:

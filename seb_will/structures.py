@@ -59,15 +59,15 @@ class Path:
     def __init__(self):
         self.path = []
 
-    def printPath(self, board, player):
+    def getLength(self, board, player):
         length = len(self.path)
         for tile in reversed(self.path):
-            print(f"({tile.row},{tile.column}): {board.board[board.size - 1 - tile.row][tile.column].colour}")
+            # print(f"({tile.row},{tile.column}): {board.board[board.size - 1 - tile.row][tile.column].colour}")
             if board.board[board.size - 1 - tile.row][tile.column].colour == player:
                 length -= 1
-        print()
-        print(length)
-        print()
+        return length
+        
+    def printPath(self):
         for location in reversed(self.path):
             row = location.row
             column = location.column

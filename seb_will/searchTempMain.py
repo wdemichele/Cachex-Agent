@@ -2,10 +2,17 @@ import aStarSearch
 
 n = 5
 occupiedBoard = [
-    ["b",0,3],["b",0,2],["b",4,3],["b",3,4],["b",1,4],["b",0,4],["b",2,1],["b",2,2],["b",1,2],["b",2,0],["b",1,0],["b",2,4]
+    ["b",1,0],["b",1,1],["b",1,3],["b",3,2],["r",0,2],["r",0,3],["r",2,2],["r",2,3],["r",3,0],["r",4,3]
 ]
-start = [4, 2]
-goal = [0, 0]
-player = "b"
 
-aStarSearch.searchStart(n,occupiedBoard,start,goal,player)
+player = "r"
+if player == "b":
+    for i in range(0,n):
+        for j in range(0,n):
+            print("("+str(i)+","+str(0)+") to ("+str(j)+","+str(n-1)+"): "+str(aStarSearch.searchStart(n,occupiedBoard,[i,0],[j,n-1],player)),end="|")
+        print()
+else:
+    for i in range(0,n):
+        for j in range(0,n):
+            print("("+str(0)+","+str(i)+") to ("+str(n-1)+","+str(j)+"): "+str(aStarSearch.searchStart(n,occupiedBoard,[0,i],[n-1,j],player)),end="|")
+        print()
