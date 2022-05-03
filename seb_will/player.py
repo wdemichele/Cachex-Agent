@@ -1,4 +1,5 @@
 import referee.board
+import util
 
 
 class Player:
@@ -13,7 +14,8 @@ class Player:
         as Blue.
         """
         self.player_colour = player
-        self.board = referee.board.Board(n)
+        self.board = util.referee.board.Board(n)
+        self.n_moves = 0
 
     def action(self):
         """
@@ -35,6 +37,7 @@ class Player:
         the same as what your player returned from the action method
         above. However, the referee has validated it at this point.
         """
+        self.n_moves += 1
         if action[0] == "STEAL":
             self.board.swap()
         else:
@@ -42,39 +45,39 @@ class Player:
 
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
 
-        if depth == DEPTH_LIMIT:
+        if depth == util.DEPTH_LIMIT:
             return eval_func(game_state)
 
         if is_maximizing:
             # set to number below minimum of eval func
-            max = MINIMAX_MIN
+            curr_max = util.MINIMAX_MIN
 
-            for move in get_reasonable_moves():
+            for move in util.get_reasonable_moves():
 
-                move_state = make_state_from_move(game_state, move)
-                value = alpha_beta_minimax(depth + 1, move_state, False, alpha, beta)
+                move_state = util.make_state_from_move(game_state, move)
+                value = self.alpha_beta_minimax(depth + 1, move_state, False, alpha, beta)
 
-                max = max(max, value)
-                alpha = max(alpha, max)
+                curr_max = max(curr_max, value)
+                alpha = max(alpha, curr_max)
 
                 if beta <= alpha:
                     # pruning principle
                     break
 
-            return max
+            return curr_max
         else:
 
-            min = MINIMAX_MAX
+            curr_min = util.MINIMAX_MAX
             # Generate children
-            for move in get_reasonable_moves():
+            for move in util.get_reasonable_moves():
 
-                move_state = make_state_from_move(game_state, move)
-                value = alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)
+                move_state = util.make_state_from_move(game_state, move)
+                value = self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)
 
-                min = min(min, value)
-                beta = min(beta, min)
+                curr_min = min(curr_min, value)
+                beta = min(beta, curr_min)
 
                 if beta <= alpha:
                     break
 
-            return min
+            return curr_min
