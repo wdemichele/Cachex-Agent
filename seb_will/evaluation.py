@@ -1,5 +1,13 @@
 import math
 
+PLAYER, OPPOSITION, EMPTY = 'r','b', ''
+
+def evaluate(board, player):
+    w1, w2, w3, w4 = 1, 2, 3, 4
+    f1, f2, f3, f4 = 1, 2, 3, 4
+    value = w1*f1 + w2*f2 + w3*f3 + w4*f4
+    return value
+
 def board_value(n):
     # basic evaluation that favours center pieces i.e:
     # 1 2 1
@@ -70,7 +78,6 @@ def is_captureable(Board,i,j,n,player):
                         return (i-1,j)
                     if Board[i][j+1] == '' & Board[i-1][j] == player:
                         return (i,j+1)
-    
 
 
 def is_forkable(Board,i,j,n,player):
@@ -162,3 +169,26 @@ def is_forkable(Board,i,j,n,player):
             if (Board[i][j+1] == opp & Board[i-1][j+1] == opp & Board[i][j-1] == opp & Board[i+1][j-1] == opp):
                 if Board[i-1][j+2] == '' & Board[i+1][j-2] == '':
                     return (i,j)
+
+
+
+def neighbours(board, i, j, n, visitable):
+    # visitable is a list ['r','b',''], ['r',''], [''] etc.
+    neighbours = []
+    spotsToCheck = [[0, -1], [-1, 0], [-1, 1], [0, 1], [1, 0], [1, -1]]
+    for move in spotsToCheck:
+        i1, j1 = i + move[0], j + move[1]
+        if i1 < 0 or i1 >= n or j1 < 0 or j1 >= n:
+            continue
+        else:
+            if board[i1,j1][0] in visitable:
+                neighbours.append([i1,j1])
+    return neighbours
+
+def longestAxisChain(board, i, j, n, visited, curChain):
+    for chain in len(visited):
+        if [i,j] in visited[chain]:
+            return visited
+    visitable = neighbours(board, i, j, n, [PLAYER,EMPTY])
+    # removes elements that have already been visited
+    visitable = list(set(visitable) - set(curChain))
