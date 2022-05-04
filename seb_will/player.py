@@ -13,9 +13,11 @@ class Player:
         play as Red, or the string "blue" if your player will play
         as Blue.
         """
-        self.player_colour = player
+        self.player = player
         self.board = util.referee.board.Board(n)
-        self.n_moves = 0
+        self.n_tokens = 0
+        self.red_tokens = []
+        self.blue_tokens = []
 
     def action(self):
         """
@@ -37,15 +39,29 @@ class Player:
         the same as what your player returned from the action method
         above. However, the referee has validated it at this point.
         """
-        self.n_moves += 1
         if action[0] == "STEAL":
             self.board.swap()
+            self.blue_tokens.append((self.red_tokens[0][1], self.red_tokens[0][0]))
+            self.red_tokens.clear()
         else:
-            self.board.place(player, (action[1], action[2]))
+            self.n_tokens += 1
+            caps = self.board.place(player, (action[1], action[2]))
+            if player == "red":
+                self.red_tokens.append((action[1], action[2]))
+                if caps:
+                    for cap in caps:
+                        self.red_tokens.append(cap)
+                        self.blue_tokens.append(cap)
+            else:
+                self.blue_tokens.append((action[1], action[2]))
+                if caps:
+                    for cap in caps:
+                        self.blue_tokens.append(cap)
+                        self.red_tokens.remove(cap)
 
-    def alpha_beta_minimax(self, depth, game_state, player, is_maximizing, alpha, beta):
+    def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
 
-        if depth == util.DEPTH_LIMIT:
+        if depth == util.get_depth_limit():
             return eval_func(game_state)
 
         if is_maximizing:
@@ -53,10 +69,11 @@ class Player:
             curr_max = util.MINIMAX_MIN
             curr_best_move = None
 
-            for move in util.get_reasonable_moves():
+            for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
+                                                  self.red_tokens, self.blue_tokens):
 
-                move_state = util.make_state_from_move(game_state, move, player)
-                value = self.alpha_beta_minimax(depth + 1, move_state, player, False, alpha, beta)[0]
+                move_state = util.make_state_from_move(game_state, move, self.player)
+                value = self.alpha_beta_minimax(depth + 1, move_state, False, alpha, beta)[0]
 
                 if value > curr_max:
                     curr_max = value
@@ -73,10 +90,11 @@ class Player:
             curr_min = util.MINIMAX_MAX
             curr_best_move = None
             # Generate children
-            for move in util.get_reasonable_moves():
+            for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
+                                                  self.red_tokens, self.blue_tokens):
 
-                move_state = util.make_state_from_move(game_state, move, player)
-                value = self.alpha_beta_minimax(depth + 1, move_state, player, True, alpha, beta)
+                move_state = util.make_state_from_move(game_state, move, self.player)
+                value = self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
 
                 if value < curr_min:
                     curr_min = value
