@@ -43,7 +43,7 @@ class Player:
         else:
             self.board.place(player, (action[1], action[2]))
 
-    def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
+    def alpha_beta_minimax(self, depth, game_state, player, is_maximizing, alpha, beta):
 
         if depth == util.DEPTH_LIMIT:
             return eval_func(game_state)
@@ -51,33 +51,39 @@ class Player:
         if is_maximizing:
             # set to number below minimum of eval func
             curr_max = util.MINIMAX_MIN
+            curr_best_move = None
 
             for move in util.get_reasonable_moves():
 
-                move_state = util.make_state_from_move(game_state, move)
-                value = self.alpha_beta_minimax(depth + 1, move_state, False, alpha, beta)
+                move_state = util.make_state_from_move(game_state, move, player)
+                value = self.alpha_beta_minimax(depth + 1, move_state, player, False, alpha, beta)[0]
 
-                curr_max = max(curr_max, value)
+                if value > curr_max:
+                    curr_max = value
+                    curr_best_move = move
                 alpha = max(alpha, curr_max)
 
                 if beta <= alpha:
                     # pruning principle
                     break
 
-            return curr_max
+            return curr_max, curr_best_move
         else:
 
             curr_min = util.MINIMAX_MAX
+            curr_best_move = None
             # Generate children
             for move in util.get_reasonable_moves():
 
-                move_state = util.make_state_from_move(game_state, move)
-                value = self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)
+                move_state = util.make_state_from_move(game_state, move, player)
+                value = self.alpha_beta_minimax(depth + 1, move_state, player, True, alpha, beta)
 
-                curr_min = min(curr_min, value)
+                if value < curr_min:
+                    curr_min = value
+                    curr_best_move = move
                 beta = min(beta, curr_min)
 
                 if beta <= alpha:
                     break
 
-            return curr_min
+            return curr_min, curr_best_move
