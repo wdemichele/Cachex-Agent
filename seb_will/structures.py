@@ -32,7 +32,7 @@ class Board:
     def fillSpot(self, row, column, colour):
         self.board[self.size - 1 - row][column].colour = colour
 
-    def getAdjacentEmptySpots(self, location, noCostColour):
+    def getAdjacentSpots(self, location, noCostColour, all):
         retVal = []
         spotsToCheck = [[0, -1], [-1, 0], [-1, 1], [0, 1], [1, 0], [1, -1]]
         for move in spotsToCheck:
@@ -40,11 +40,16 @@ class Board:
             if new_location.row < 0 or new_location.row >= self.size or new_location.column < 0 or new_location.column >= self.size:
                 continue
             else:
-                if self.board[self.size - 1 - new_location.row][new_location.column].colour == "e":
-                    retVal.append(new_location)
-                elif self.board[self.size - 1 - new_location.row][new_location.column].colour == noCostColour:
-                    retVal.append(new_location)
+                if all:
+                    spot = Spot(new_location, self.board[self.size - 1 - new_location.row][new_location.column].colour)
+                    retVal.append(spot)
+                else:    
+                    if self.board[self.size - 1 - new_location.row][new_location.column].colour == "e":
+                        retVal.append(new_location)
+                    elif self.board[self.size - 1 - new_location.row][new_location.column].colour == noCostColour:
+                        retVal.append(new_location)
         return retVal
+
     def printBoard(self):
         for i in reversed(range(self.size)):
             space = "     "*i
@@ -54,6 +59,13 @@ class Board:
             print()
             print()
 
+    def getColourPieces(self, colour):
+        colours = []
+        for i in reversed(range(self.size)):
+            for j in range(self.size):
+                if self.board[self.size - i - 1][j].colour == colour:
+                    colours.append((i,j))
+        return colours
 
 class Path:
     def __init__(self):

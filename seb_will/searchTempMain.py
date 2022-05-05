@@ -1,11 +1,13 @@
 import aStarSearch
 import structures
+import evaluation
+import numpy
 
 def main():
 
-    n = 5
+    n = 10
     occupiedBoard = [
-        ["b",1,0],["b",1,1],["b",1,3],["b",3,2],["r",0,2],["r",0,3],["r",2,2],["r",2,3],["r",3,0],["r",4,3]
+        ["b",8,1],["b",9,1],["b",8,3],["b",9,3],["b",8,5],["b",8,6],["b",8,8],["b",8,9],["r",9,0],["r",8,4],["r",9,5],["r",7,9]
     ]
 
     # Initialize board
@@ -13,8 +15,19 @@ def main():
     for i in occupiedBoard:
         board.fillSpot(i[1], i[2], i[0])
     player = "r"
+    opposition = "b"
 
-    print(evaluate(board,player))
+    reasonableMoves = []
+
+    oppOccupy = board.getColourPieces(opposition)
+    for location in oppOccupy:
+        captures = set(evaluation.is_captureable(board,location[0],location[1],player))
+        forks = set(evaluation.is_forkable(board,location[0],location[1],player))
+        reasonableMoves.extend(list(captures.union(forks)))
+    reasonableMoves = list(set(reasonableMoves))
+    print(reasonableMoves)
+
+    # print(evaluate(board,player))
 
 def evaluate(board, player):
     opposition = "b"
@@ -24,7 +37,7 @@ def evaluate(board, player):
     w1 = w2 = 0.5
     f1 = getShortestWin(board,player)
     f2 = getShortestWin(board,opposition)
-    return w1*f1 + w2*f2
+    return w1*f1 - w2*f2
 
 
 def getShortestWin(board,player):
