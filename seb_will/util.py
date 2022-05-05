@@ -1,7 +1,6 @@
 import referee.board
 import copy
 
-
 # MINIMAX_MIN needs to be lower than anything that eval could return
 MINIMAX_MIN = -50
 
@@ -19,11 +18,13 @@ MOVE_MIN_LIMIT = 4
 
 _HEX_STEPS = [(1, -1), (1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1)]
 _HALF_HEX_STEPS = [(1, -1), (0, 1), (-1, 0)]
-_RIGHT_HEX_STEPS = [(1, 0), (0, 1), (-1, 1)]
-_LEFT_HEX_STEPS = [(1, -1), (0, -1), (-1, 0)]
+_RIGHT_HEX_STEPS = [(0, 1), (1, 0), (-1, 1)]
+_LEFT_HEX_STEPS = [(0, -1), (1, -1), (-1, 0)]
+_UP_HEX_STEPS = [(1, 0), (1, -1)]
+_DOWN_HEX_STEPS = [(-1, 0), (-1, 1)]
 
-_STEAL = ("STEAL", )
-_PLACE = ("PLACE", )
+_STEAL = ("STEAL",)
+_PLACE = ("PLACE",)
 
 
 def make_state_from_move(curr_state: referee.board, move, player):
@@ -33,7 +34,6 @@ def make_state_from_move(curr_state: referee.board, move, player):
 
 
 def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, blue_tokens):
-
     # Feasible to try perfect play
     if curr_state.n ** 2 - n_dots < MOVE_MAX_LIMIT:
         return get_all_moves(curr_state)
@@ -54,12 +54,12 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
         n = curr_state.n
         if len(return_moves) < (MOVE_MAX_LIMIT / 4):
             for move in _HEX_STEPS:
-                new_spot = tuple(map(lambda x, y: x+y, move, (n/2, n/2)))
+                new_spot = tuple(map(lambda x, y: x + y, move, (n / 2, n / 2)))
                 if not curr_state.is_occupied(new_spot):
                     return_moves.append(new_spot)
         elif len(return_moves) < (MOVE_MAX_LIMIT / 3):
             for move in _HALF_HEX_STEPS:
-                new_spot = tuple(map(lambda x, y: x+y, move, (n/2, n/2)))
+                new_spot = tuple(map(lambda x, y: x + y, move, (n / 2, n / 2)))
                 if not curr_state.is_occupied(new_spot):
                     return_moves.append(new_spot)
 
@@ -76,5 +76,18 @@ def get_all_moves(curr_state: referee.board):
     return return_moves
 
 
-def get_depth_limit():
-    pass
+def get_right_hex_steps():
+    return _RIGHT_HEX_STEPS
+
+
+def get_left_hex_steps():
+    return _LEFT_HEX_STEPS
+
+
+def get_down_hex_steps():
+    return _DOWN_HEX_STEPS
+
+
+def get_up_hex_steps():
+    return _UP_HEX_STEPS
+

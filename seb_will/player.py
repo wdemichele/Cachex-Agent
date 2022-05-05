@@ -4,7 +4,7 @@ import util
 
 class Player:
     _STEAL = tuple("STEAL", )
-    _PLACE = ("PLACE", )
+    _PLACE = ("PLACE",)
 
     def __init__(self, player, n):
 
@@ -22,6 +22,7 @@ class Player:
         self.opp_tokens = []
         self.player_tokens = []
         self.corners = [(0, 0), (0, self.board.n), (self.board.n, 0), (self.board.n, self.board.n)]
+        self.token_to_build_on = None
 
     def action(self):
         """
@@ -29,7 +30,6 @@ class Player:
         of the game, select an action to play.
         """
         # figure out change
-
 
         #  don't need to apply it to your own board here
 
@@ -71,10 +71,12 @@ class Player:
     def employ_strategy(self):
         if self.n_tokens < 2:
             if self.player == "blue" and self.opp_tokens in self.corners:
+                self.token_to_build_on = (self.opp_tokens[0][1], self.opp_tokens[1][0])
                 return self._STEAL
             else:
                 for corner in self.corners:
                     if not self.board.is_occupied(corner):
+                        self.token_to_build_on = corner
                         return self._PLACE + corner
         if self.board.n < 5:
             return self._PLACE + self.alpha_beta_minimax(util.DEPTH_LIMIT, self.board, True,
@@ -86,9 +88,31 @@ class Player:
             # Employ basic starting strat
             # if their structures are bigger, block
             # otherwise, continue building
-            if self.n_tokens <= self.board.n/2:
+            if self.n_tokens <= self.board.n / 2:
                 return self.build()
             return self.block()
+
+    def build(self):
+        steps = util.get_left_hex_steps()
+        if self.player == "blue":
+            if self.token_to_build_on[1] >= self.board.n / 2:
+                steps = util.get_right_hex_steps()
+        else:
+            if self.token_to_build_on[0] < self.board.n / 2:
+                steps = util.get_up_hex_steps()
+            else:
+                steps = util.get_down_hex_steps()
+        for move in steps:
+            new_spot = tuple(map(lambda x, y: x + y, move, self.token_to_build_on))
+            if not self.board.is_occupied(new_spot) and self.board.inside_bounds(new_spot):
+                return self._PLACE + new_spot
+        return self.fallback_strategy()
+
+    def block(self):
+        pass
+
+    def fallback_strategy(self):
+        pass
 
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
 
@@ -101,7 +125,7 @@ class Player:
             curr_best_move = None
 
             for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
-                                                  self.red_tokens, self.blue_tokens):
+                                                  self.player_tokens, self.opp_tokens):
 
                 move_state = util.make_state_from_move(game_state, move, self.player)
                 value = self.alpha_beta_minimax(depth + 1, move_state, False, alpha, beta)[0]
@@ -122,7 +146,7 @@ class Player:
             curr_best_move = None
             # Generate children
             for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
-                                                  self.red_tokens, self.blue_tokens):
+                                                  self.player_tokens, self.opp_tokens):
 
                 move_state = util.make_state_from_move(game_state, move, self.player)
                 value = self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
