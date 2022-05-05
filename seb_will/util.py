@@ -22,6 +22,9 @@ _HALF_HEX_STEPS = [(1, -1), (0, 1), (-1, 0)]
 _RIGHT_HEX_STEPS = [(1, 0), (0, 1), (-1, 1)]
 _LEFT_HEX_STEPS = [(1, -1), (0, -1), (-1, 0)]
 
+_STEAL = ("STEAL", )
+_PLACE = ("PLACE", )
+
 
 def make_state_from_move(curr_state: referee.board, move, player):
     new_board = copy.deepcopy(curr_state)
