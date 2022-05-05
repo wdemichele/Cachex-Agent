@@ -95,7 +95,7 @@ def aStarSearch(start, goal, board, player):
                 curr = curr.parent
             return path
 
-        next_moves = board.getAdjacentEmptySpots(curr.location, player)
+        next_moves = board.getAdjacentSpots(curr.location, player, False)
         for move in next_moves:
             if move not in checked_list:
                 newMoveNode = AStarNode(curr, move)
