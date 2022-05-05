@@ -19,11 +19,20 @@ def main():
 
     reasonableMoves = []
 
+    # look for capture and fork opportunities against opponent
     oppOccupy = board.getColourPieces(opposition)
     for location in oppOccupy:
         captures = set(evaluation.is_captureable(board,location[0],location[1],player))
         forks = set(evaluation.is_forkable(board,location[0],location[1],player))
         reasonableMoves.extend(list(captures.union(forks)))
+
+    # prevent capture and fork opportunities against player
+    playerOccupy = board.getColourPieces(player)
+    for location in playerOccupy:
+        captures = set(evaluation.is_captureable(board,location[0],location[1],opposition))
+        forks = set(evaluation.is_forkable(board,location[0],location[1],opposition))
+        reasonableMoves.extend(list(captures.union(forks)))
+
     reasonableMoves = list(set(reasonableMoves))
     print(reasonableMoves)
 
