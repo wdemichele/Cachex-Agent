@@ -7,7 +7,7 @@ def main():
 
     n = 10
     occupiedBoard = [
-        ["b",8,1],["b",9,1],["b",8,3],["b",9,3],["b",8,5],["b",8,6],["b",8,8],["b",8,9],["r",9,0],["r",8,4],["r",9,5],["r",7,9]
+        ["b",8,9],["b",8,8],["b",7,8],["b",4,9],["b",4,8],["b",5,7],["b",5,3],["b",4,4],["b",3,4],["b",1,8],["b",2,7],["b",3,7],["b",8,1],["b",8,0],["b",9,1],["b",8,4],["b",8,5],["b",7,6]
     ]
 
     # Initialize board
@@ -19,11 +19,20 @@ def main():
 
     reasonableMoves = []
 
+    # look for capture and fork opportunities against opponent
     oppOccupy = board.getColourPieces(opposition)
     for location in oppOccupy:
         captures = set(evaluation.is_captureable(board,location[0],location[1],player))
         forks = set(evaluation.is_forkable(board,location[0],location[1],player))
         reasonableMoves.extend(list(captures.union(forks)))
+
+    # prevent capture and fork opportunities against player
+    playerOccupy = board.getColourPieces(player)
+    for location in playerOccupy:
+        captures = set(evaluation.is_captureable(board,location[0],location[1],opposition))
+        forks = set(evaluation.is_forkable(board,location[0],location[1],opposition))
+        reasonableMoves.extend(list(captures.union(forks)))
+
     reasonableMoves = list(set(reasonableMoves))
     print(reasonableMoves)
 

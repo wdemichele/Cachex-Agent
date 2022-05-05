@@ -1,14 +1,7 @@
 import math
 import structures
 
-
-PLAYER, OPPOSITION, EMPTY = 'r','b', ''
-
-
-
 def is_captureable(Board,i,j,player):
-
-    
     n = Board.size
     captureMove = []
     opp = "r"
@@ -72,7 +65,6 @@ def is_captureable(Board,i,j,player):
                     captureMove.append((i,j+1))
     return captureMove
 
-
 def is_forkable(Board,i,j,player):
     n = Board.size
     
@@ -81,68 +73,64 @@ def is_forkable(Board,i,j,player):
     if (player == "r"):
         opp = "b"
 
-    if Board.board[n-1-(i)][j].colour == opp:
-        # left side horizontal three piece fork
-        if (i > 1 and j < (n-1) and j > 0):
-            if (Board.board[n-1-(i-1)][j].colour == opp and Board.board[n-1-(i-1)][j+1].colour == 'e' and Board.board[n-1-(i)][j-1].colour == 'e' and Board.board[n-1-(i-2)][j].colour == 'e'):
-                #      . . . . . .
-                #     r b . . . .
-                #    o r r . . .
-                #   . . o . . .
-                #  . . . . . .
-                if (Board.board[n-1-(i-2)][j+1].colour == opp):
-                    forkMove.append((i-1,j+1))
+    if (i>=(n-1) or i<=0 or j>=(n-1) or j<=0):
+        return forkMove
 
-                #      . . . . . .
-                #     . o . . . .
-                #    o r r . . .
-                #   . r b . . .
-                #  . . . . . .
-                if (Board.board[n-1-(i-1)][j-1].colour == opp):
-                    forkMove.append((i-1,j-1))
-        
-        # right side horizontal three piece fork
-        if (i < (n-2) and j < (n-1) and j > 0):
-            if (Board.board[n-1-(i+1)][j].colour == opp and Board.board[n-1-(i)][j+1].colour == 'e' and Board.board[n-1-(i+1)][j-1].colour == 'e' and Board.board[n-1-(i+2)][j].colour == 'e'):
-                #      . . . . . .
-                #     . . b r . .
-                #    . . r r o .
-                #   . . . o . .
-                #  . . . . . .
-                if (Board.board[n-1-(i+1)][j+1].colour == opp):
-                    forkMove.append((i,j+1))
+    if (Board.board[n-1-(i)][j-1].colour == opp and Board.board[n-1-(i+1)][j-1].colour == 'e' and Board.board[n-1-(i-1)][j].colour == 'e' and Board.board[n-1-(i)][j+1].colour == 'e'):
+        #      . . . . . .
+        #     . . b r . .
+        #    . . r r o .
+        #   . . . o . .
+        #  . . . . . .
+        if (Board.board[n-1-(i+1)][j].colour == opp):
+            forkMove.append((i+1,j-1))
+        #      . . . . . .
+        #     . . b . . .
+        #    . . r r o .
+        #   . . . o r .
+        #  . . . . . .
+        if (Board.board[n-1-(i-1)][j+1].colour == opp):
+            forkMove.append((i-1,j))
+    
+    if (Board.board[n-1-(i)][j+1].colour == opp and Board.board[n-1-(i-1)][j+1].colour == 'e' and Board.board[n-1-(i)][j-1].colour == 'e' and Board.board[n-1-(i+1)][j].colour == 'e'):
+        #      . . . . . .
+        #     r b . . . .
+        #    o r r . . .
+        #   . . o . . .
+        #  . . . . . .
+        if (Board.board[n-1-(i+1)][j-1].colour == opp):
+            forkMove.append((i+1,j))
+        #      . . . . . .
+        #     . o . . . .
+        #    o r r . . .
+        #   . r b . . .
+        #  . . . . . .
+        if (Board.board[n-1-(i-1)][j].colour == opp):
+            forkMove.append((i-1,j+1))  
 
-                #      . . . . . .
-                #     . . o . . .
-                #    . . r r o .
-                #   . . . b r .
-                #  . . . . . .
-                if (Board.board[n-1-(i+2)][j-1].colour == opp):
-                    forkMove.append((i+1,j-1))
+    # left side vertical three piece fork
+    #      . . . . . .
+    #     . . r o . .
+    #    . . b r . .
+    #   . . r o . .
+    #  . . . . . .
+    if (Board.board[n-1-(i+1)][j-1].colour == opp and Board.board[n-1-(i-1)][j].colour == opp):
+        if (Board.board[n-1-(i)][j-1].colour == 'e' and Board.board[n-1-(i+1)][j].colour == 'e' and Board.board[n-1-(i-1)][j+1].colour == 'e'):
+            forkMove.append((i,j-1))
 
-        
-        if (j > 0 and i < (n-1) and i > 0 and j < (n-1)):
-            # right side vertical three piece fork
-            #      . . . . . .
-            #     . . . o r .
-            #    . . . r b .
-            #   . . . o r .
-            #  . . . . . .
-            if (Board.board[n-1-(i)][j-1].colour == opp and Board.board[n-1-(i-1)][j+1].colour == opp):
-                if (Board.board[n-1-(i-1)][j].colour == 'e' and Board.board[n-1-(i)][j+1].colour == 'e' and Board.board[n-1-(i+1)][j-1].colour == 'e'):
-                    forkMove.append((i-1,j))
-        
-            # left side vertical three piece fork
-            #      . . . . . .
-            #     . . r o . .
-            #    . . b r . .
-            #   . . r o . .
-            #  . . . . . .
-            if (Board.board[n-1-(i)][j+1].colour == opp and Board.board[n-1-(i+1)][j-1].colour == opp):
-                if (Board.board[n-1-(i-1)][j+1].colour == 'e' and Board.board[n-1-(i+1)][j].colour == 'e' and Board.board[n-1-(i)][j-1].colour == 'e'):
-                    forkMove.append((i+1,j))
+    # right side vertical three piece fork
+    #      . . . . . .
+    #     . . . o r .
+    #    . . . r b .
+    #   . . . o r .
+    #  . . . . . .
+    if (Board.board[n-1-(i+1)][j].colour == opp and Board.board[n-1-(i-1)][j+1].colour == opp):
+        if (Board.board[n-1-(i+1)][j-1].colour == 'e' and Board.board[n-1-(i-1)][j].colour == 'e' and Board.board[n-1-(i)][j+1].colour == 'e'):
+            forkMove.append((i,j+1))
+    
     return forkMove
-       
+
+
 def twoColumnFork(Board,i,j,n,player):
     opp = "r"
     if (player == "r"):
