@@ -1,5 +1,6 @@
 import referee.board
 import util
+from random import randint
 
 
 class Player:
@@ -109,10 +110,14 @@ class Player:
         return self.fallback_strategy()
 
     def block(self):
-        pass
+        
 
     def fallback_strategy(self):
-        pass
+        while True:
+            x = randint(0, self.board.n)
+            y = randint(0, self.board.n)
+            if not self.board.is_occupied((x, y)):
+                return x, y
 
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
 
