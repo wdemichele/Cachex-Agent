@@ -63,25 +63,22 @@ def getShortestWin(board,player,skipFactor):
 
     shortestDist = 1000
     shortestDistPath = [[-1,-1],[-1,-1]]
-    # print("Player: "+player)
-    if player == "b":
-        for i in range(0,board.size,skipFactor):
-            for j in range(0,board.size,skipFactor):
+    for i in range(0,board.size,skipFactor):
+        for j in range(0,board.size,skipFactor):
+            if player == "b":
                 pathDist = aStarSearch.searchStart(board,[i,0],[j,board.size-1],player)
                 if pathDist < shortestDist:
                     shortestDist = pathDist
                     shortestDistPath = [[i,0],[j,board.size-1]]
-            #     print("("+str(i)+","+str(0)+") to ("+str(j)+","+str(board.size-1)+"): "+str(pathDist),end="|")
-            # print()
-    else:
-        for i in range(0,board.size):
-            for j in range(0,board.size):
+                # print("("+str(i)+","+str(0)+") to ("+str(j)+","+str(board.size-1)+"): "+str(pathDist),end="|")
+            else:
                 pathDist = aStarSearch.searchStart(board,[0,i],[board.size-1,j],player)
                 if pathDist < shortestDist:
                     shortestDist = pathDist
                     shortestDistPath = [[0,i],[board.size-1,j]]
-            #     print("("+str(0)+","+str(i)+") to ("+str(board.size-1)+","+str(j)+"): "+str(pathDist),end="|")
-            # print()
+                # print("("+str(0)+","+str(i)+") to ("+str(board.size-1)+","+str(j)+"): "+str(pathDist),end="|")
+        # print()
+
     print("Player '"+player+"' Shortest Path: "+str(shortestDistPath[0])+" to "+str(shortestDistPath[1]),end="")
     print(": "+str(shortestDist))
     return(shortestDist)
