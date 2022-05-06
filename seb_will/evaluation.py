@@ -63,6 +63,48 @@ def is_captureable(Board,i,j,player):
                     captureMove.append((i-1,j))
                 if Board.board[n-1-(i)][j+1].colour == 'e' and Board.board[n-1-(i-1)][j].colour == player:
                     captureMove.append((i,j+1))
+
+    #outer capturables
+    if (j<(n-1) and i>0):
+        if (i>0):
+            if (i>1):
+                if (Board.board[n-1-(i-2)][j+1].colour == opp):
+                    #   . . . b . .
+                    #  . . . r o .
+                    # . . . . b .
+                    if Board.board[n-1-(i-1)][j].colour == player and Board.board[n-1-(i-1)][j+1].colour == 'e':
+                        captureMove.append((i-1,j+1))
+                    #   . . . b . .
+                    #  . . . o r .
+                    # . . . . b .
+                    elif Board.board[n-1-(i-1)][j].colour == "e" and Board.board[n-1-(i-1)][j+1].colour == player:
+                        captureMove.append((i-1,j))
+
+            if (i>0 and j<n-2):
+                if (Board.board[n-1-(i-1)][j+2].colour == opp):
+                    #   . . . . . .
+                    #  . b o . . .
+                    # . . r b . .
+                    if Board.board[n-1-(i-1)][j+1].colour == player and Board.board[n-1-(i)][j+1].colour == 'e':
+                        captureMove.append((i,j+1))
+                    #   . . . . . .
+                    #  . b r . . .
+                    # . . o b . .
+                    elif Board.board[n-1-(i-1)][j+1].colour == "e" and Board.board[n-1-(i)][j+1].colour == player:
+                        captureMove.append((i-1,j+1))
+
+        if (i<(n-1)):
+            if (Board.board[n-1-(i+1)][j+1].colour == opp):
+                #   . . . . . .
+                #  . b o . . .
+                # . . r b . .
+                if Board.board[n-1-(i+1)][j].colour == player and Board.board[n-1-(i)][j+1].colour == 'e':
+                    captureMove.append((i,j+1))
+                #   . . . . . .
+                #  . b r . . .
+                # . . o b . .
+                elif Board.board[n-1-(i+1)][j].colour == "e" and Board.board[n-1-(i)][j+1].colour == player:
+                    captureMove.append((i+1,j))
     return captureMove
 
 def is_forkable(Board,i,j,player):

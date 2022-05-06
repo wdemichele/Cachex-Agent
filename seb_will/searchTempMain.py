@@ -1,13 +1,15 @@
 import aStarSearch
 import structures
 import evaluation
-import numpy
+import time
+
+_SKIP_FACTOR = 3
 
 def main():
 
     n = 10
     occupiedBoard = [
-        ["b",8,9],["b",8,8],["b",7,8],["b",4,9],["b",4,8],["b",5,7],["b",5,3],["b",4,4],["b",3,4],["b",1,8],["b",2,7],["b",3,7],["b",8,1],["b",8,0],["b",9,1],["b",8,4],["b",8,5],["b",7,6]
+        ["b",8,0],["b",7,2],["r",7,1],["b",8,3],["b",7,5],["r",8,4],["b",3,6],["b",5,5],["b",3,8],["r",4,5],["r",4,8],["b",8,8],["r",8,7],["b",1,2],["b",2,3],["b",4,4],["b",5,2],["b",7,4],["b",1,6],["b",2,5],["b",3,5],["b",0,8],["b",2,8],["b",8,6],["r",0,5],["r",2,2],["r",1,3],["r",3,3],["r",4,3],["r",5,4],["r",6,7],["r",6,5],["r",1,8],["r",7,6]
     ]
 
     # Initialize board
@@ -34,7 +36,15 @@ def main():
         reasonableMoves.extend(list(captures.union(forks)))
 
     reasonableMoves = list(set(reasonableMoves))
+    print("Reasonable moves that lead to capture or fork: ")
     print(reasonableMoves)
+    print()
+    for move in reasonableMoves:
+        board.fillSpot(board.size - 1 - move[0],move[1],player)
+        print("Current Move: " + str(move))
+        print("Evaluation: "+ str(evaluate(board,player)))
+        board.fillSpot(board.size - 1 - move[0],move[1],"e")
+        print()
 
     # print(evaluate(board,player))
 
@@ -43,25 +53,26 @@ def evaluate(board, player):
     if player=="b":
         opposition = "r"
 
-    w1 = w2 = 0.5
-    f1 = getShortestWin(board,player)
-    f2 = getShortestWin(board,opposition)
+    w1 = w2 = 1
+    f1 = getShortestWin(board,player,_SKIP_FACTOR)
+    f2 = getShortestWin(board,opposition,_SKIP_FACTOR)
     return w1*f1 - w2*f2
 
 
-def getShortestWin(board,player):
+def getShortestWin(board,player,skipFactor):
+
     shortestDist = 1000
     shortestDistPath = [[-1,-1],[-1,-1]]
-    print("Player: "+player)
+    # print("Player: "+player)
     if player == "b":
-        for i in range(0,board.size):
-            for j in range(0,board.size):
+        for i in range(0,board.size,skipFactor):
+            for j in range(0,board.size,skipFactor):
                 pathDist = aStarSearch.searchStart(board,[i,0],[j,board.size-1],player)
                 if pathDist < shortestDist:
                     shortestDist = pathDist
                     shortestDistPath = [[i,0],[j,board.size-1]]
-                print("("+str(i)+","+str(0)+") to ("+str(j)+","+str(board.size-1)+"): "+str(pathDist),end="|")
-            print()
+            #     print("("+str(i)+","+str(0)+") to ("+str(j)+","+str(board.size-1)+"): "+str(pathDist),end="|")
+            # print()
     else:
         for i in range(0,board.size):
             for j in range(0,board.size):
@@ -69,9 +80,8 @@ def getShortestWin(board,player):
                 if pathDist < shortestDist:
                     shortestDist = pathDist
                     shortestDistPath = [[0,i],[board.size-1,j]]
-                print("("+str(0)+","+str(i)+") to ("+str(board.size-1)+","+str(j)+"): "+str(pathDist),end="|")
-            print()
-    print()
-    print(shortestDistPath,end="")
+            #     print("("+str(0)+","+str(i)+") to ("+str(board.size-1)+","+str(j)+"): "+str(pathDist),end="|")
+            # print()
+    print("Player '"+player+"' Shortest Path: "+str(shortestDistPath[0])+" to "+str(shortestDistPath[1]),end="")
     print(": "+str(shortestDist))
     return(shortestDist)
