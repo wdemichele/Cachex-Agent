@@ -48,7 +48,7 @@ class Player:
         if action[0] == "STEAL":
             self.board.swap()
             if self.player == "blue":
-                self.player_tokens.append((self.opp_tokens[0][1], self.opp_tokenss[0][0]))
+                self.player_tokens.append((self.opp_tokens[0][1], self.opp_tokens[0][0]))
                 self.opp_tokens.clear()
             else:
                 self.opp_tokens.append((self.player_tokens[0][1], self.player_tokens[0][0]))
@@ -79,11 +79,11 @@ class Player:
                     if not self.board.is_occupied(corner):
                         self.token_to_build_on = corner
                         return self._PLACE + corner
-        if self.board.n < 5:
-            return self._PLACE + self.alpha_beta_minimax(util.DEPTH_LIMIT, self.board, True,
+        if self.board.n < 6:
+            return self._PLACE + self.alpha_beta_minimax(0, self.board, True,
                                                          util.MINIMAX_MIN, util.MINIMAX_MAX)
         if self.n_tokens >= self.board.n:
-            return self._PLACE + self.alpha_beta_minimax(util.DEPTH_LIMIT, self.board, True,
+            return self._PLACE + self.alpha_beta_minimax(0, self.board, True,
                                                          util.MINIMAX_MIN, util.MINIMAX_MAX)
         else:
             # Employ basic starting strat
@@ -106,22 +106,59 @@ class Player:
         for move in steps:
             new_spot = tuple(map(lambda x, y: x + y, move, self.token_to_build_on))
             if not self.board.is_occupied(new_spot) and self.board.inside_bounds(new_spot):
+                self.token_to_build_on = new_spot
                 return self._PLACE + new_spot
         return self.fallback_strategy()
 
     def block(self):
-        
+        spot_closest_to_end = None
+        min_dist = 100
+        direction_to_block = None
+        for token in self.opp_tokens:
+            if self.player == "blue":
+                index = 0
+                direction_to_block = "up"
+            else:
+                index = 1
+                direction_to_block = "right"
+            if token[index] < self.board.n / 2:
+                if (self.board.n - 1) - token[index] < min_dist:
+                    spot_closest_to_end = token
+            else:
+                if token[index] < min_dist:
+                    spot_closest_to_end = token
+                if direction_to_block == "right":
+                    direction_to_block = "left"
+                else:
+                    direction_to_block = "down"
+
+        if spot_closest_to_end:
+            if direction_to_block == "up":
+                block_spots = util.get_up_hex_steps()
+            if direction_to_block == "down":
+                block_spots = util.get_down_hex_steps()
+            if direction_to_block == "right":
+                block_spots = util.get_right_hex_steps()
+            else:
+                block_spots = util.get_left_hex_steps()
+            for move in block_spots:
+                new_spot = tuple(map(lambda x, y: x + y, move, spot_closest_to_end))
+                if not self.board.is_occupied(new_spot) and self.board.inside_bounds(new_spot):
+                    self.token_to_build_on = new_spot
+                    return self._PLACE + new_spot
+
+        return self.fallback_strategy()
 
     def fallback_strategy(self):
         while True:
             x = randint(0, self.board.n)
             y = randint(0, self.board.n)
             if not self.board.is_occupied((x, y)):
-                return x, y
+                return self._PLACE + (x, y)
 
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
 
-        if depth == util.get_depth_limit():
+        if depth == util.DEPTH_LIMIT:
             return eval_func(game_state)
 
         if is_maximizing:
