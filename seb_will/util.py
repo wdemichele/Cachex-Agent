@@ -1,3 +1,4 @@
+import random
 import referee.board
 import copy
 
@@ -91,3 +92,6 @@ def get_down_hex_steps():
 def get_up_hex_steps():
     return _UP_HEX_STEPS
 
+
+def eval_func(game_state: referee.board):
+    return random.randint(-5, 5)

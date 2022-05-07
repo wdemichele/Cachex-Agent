@@ -22,7 +22,7 @@ class Player:
         self.n_tokens = 0
         self.opp_tokens = []
         self.player_tokens = []
-        self.corners = [(0, 0), (0, self.board.n), (self.board.n, 0), (self.board.n, self.board.n)]
+        self.corners = [(0, 0), (0, n), (n, 0), (n, n)]
         self.token_to_build_on = None
 
     def action(self):
@@ -30,9 +30,7 @@ class Player:
         Called at the beginning of your turn. Based on the current state
         of the game, select an action to play.
         """
-        # figure out change
-
-        #  don't need to apply it to your own board here
+        return self.employ_strategy()
 
     def turn(self, player, action):
         """
@@ -56,17 +54,15 @@ class Player:
         else:
             self.n_tokens += 1
             caps = self.board.place(player, (action[1], action[2]))
-            if player != self.player_tokens:
+            if player != self.player:
                 self.opp_tokens.append((action[1], action[2]))
-                if caps:
-                    for cap in caps:
-                        self.opp_tokens.append(cap)
-                        self.player_tokens.remove(cap)
             else:
                 self.player_tokens.append((action[1], action[2]))
-                if caps:
-                    for cap in caps:
-                        self.player_tokens.append(cap)
+            if caps:
+                for cap in caps:
+                    if player != self.player:
+                        self.player_tokens.remove(cap)
+                    else:
                         self.opp_tokens.remove(cap)
 
     def employ_strategy(self):
@@ -81,17 +77,13 @@ class Player:
                         return self._PLACE + corner
         if self.board.n < 6:
             return self._PLACE + self.alpha_beta_minimax(0, self.board, True,
-                                                         util.MINIMAX_MIN, util.MINIMAX_MAX)
+                                                         util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
         if self.n_tokens >= self.board.n:
             return self._PLACE + self.alpha_beta_minimax(0, self.board, True,
-                                                         util.MINIMAX_MIN, util.MINIMAX_MAX)
-        else:
-            # Employ basic starting strat
-            # if their structures are bigger, block
-            # otherwise, continue building
-            if self.n_tokens <= self.board.n / 2:
-                return self.build()
-            return self.block()
+                                                         util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
+        if self.n_tokens <= self.board.n / 2:
+            return self.build()
+        return self.block()
 
     def build(self):
         steps = util.get_left_hex_steps()
@@ -114,30 +106,36 @@ class Player:
         spot_closest_to_end = None
         min_dist = 100
         direction_to_block = None
+        if self.player == "blue":
+            # if enemy is red, blocking a row is more efficient
+            index = 0
+        else:
+            # if enemy is blue, blocking an adjacent column is more efficient
+            index = 1
+        # find the token closest to a opposite-half boundary
         for token in self.opp_tokens:
-            if self.player == "blue":
-                index = 0
-                direction_to_block = "up"
-            else:
-                index = 1
-                direction_to_block = "right"
+            # if left or bottom side
             if token[index] < self.board.n / 2:
                 if (self.board.n - 1) - token[index] < min_dist:
                     spot_closest_to_end = token
+                    if index:
+                        direction_to_block = "right"
+                    else:
+                        direction_to_block = "up"
             else:
                 if token[index] < min_dist:
                     spot_closest_to_end = token
-                if direction_to_block == "right":
-                    direction_to_block = "left"
-                else:
-                    direction_to_block = "down"
+                    if index:
+                        direction_to_block = "down"
+                    else:
+                        direction_to_block = "left"
 
         if spot_closest_to_end:
             if direction_to_block == "up":
                 block_spots = util.get_up_hex_steps()
-            if direction_to_block == "down":
+            elif direction_to_block == "down":
                 block_spots = util.get_down_hex_steps()
-            if direction_to_block == "right":
+            elif direction_to_block == "right":
                 block_spots = util.get_right_hex_steps()
             else:
                 block_spots = util.get_left_hex_steps()
@@ -159,7 +157,7 @@ class Player:
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
 
         if depth == util.DEPTH_LIMIT:
-            return eval_func(game_state)
+            return util.eval_func(game_state)
 
         if is_maximizing:
             # set to number below minimum of eval func
