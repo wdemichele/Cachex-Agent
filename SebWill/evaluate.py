@@ -1,13 +1,10 @@
-<<<<<<< Updated upstream
-import aStarSearch
-import util
+
+
+from SebWill import util
 import time
-=======
 from SebWill import aStarSearch
 from SebWill import relevantMoves
-import time
 from SebWill import player
->>>>>>> Stashed changes
 import copy
 
 _SKIP_FACTOR = 3
