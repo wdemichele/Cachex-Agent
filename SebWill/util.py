@@ -2,6 +2,7 @@ import random
 import referee.board
 import copy
 import evaluate
+import relevantMoves
 
 # MINIMAX_MIN needs to be lower than anything that eval could return
 MINIMAX_MIN = -50
@@ -40,20 +41,54 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
     if curr_state.n ** 2 - n_dots < MOVE_MAX_LIMIT:
         return get_all_moves(curr_state)
     else:
+        opposition = "blue"
+        if player=="blue":
+            opposition = "red"
+        
+        
         return_moves = []
-        for move in _HEX_STEPS:
-            for spot in red_tokens:
-                # propogate possible moves
-                new_spot = tuple(map(lambda x, y: x + y, spot, move))
-                if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
-                    return_moves.append(new_spot)
-            for spot in blue_tokens:
-                new_spot = tuple(map(lambda x, y: x + y, spot, move))
-                if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
-                    return_moves.append(new_spot)
-            if len(return_moves) > MOVE_MAX_LIMIT:
-                return return_moves
-        n = curr_state.n
+        # look for capture opportunities against opposition
+        oppOccupy = getColourPieces(curr_state, opposition)
+        for location in oppOccupy:
+            captures = relevantMoves.is_captureable(curr_state,location[0],location[1],player)
+            return_moves.extend(captures)
+
+        # prevent capture opportunities against player
+        playerOccupy = getColourPieces(curr_state, player)
+        for location in playerOccupy:
+            captures = relevantMoves.is_captureable(curr_state,location[0],location[1],opposition)
+            return_moves.extend(captures)
+
+        # only search for forks if direct captures are empty
+        if len(return_moves)==0:
+
+            # look for fork opportunities against opposition
+            for location in oppOccupy:
+                forks = relevantMoves.is_forkable(curr_state,location[0],location[1],player)
+                return_moves[2].extend(forks)
+
+            # prevent fork opportunities against player
+            for location in playerOccupy:
+                forks = relevantMoves.is_forkable(curr_state,location[0],location[1],opposition)
+                return_moves[3].extend(forks)
+
+        return_moves = list(set(return_moves))
+        
+        if len(return_moves)==0:
+            for move in _HEX_STEPS:
+                for spot in red_tokens:
+                    # propogate possible moves
+                    new_spot = tuple(map(lambda x, y: x + y, spot, move))
+                    if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
+                        return_moves.append(new_spot)
+                for spot in blue_tokens:
+                    new_spot = tuple(map(lambda x, y: x + y, spot, move))
+                    if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
+                        return_moves.append(new_spot)
+                if len(return_moves) > MOVE_MAX_LIMIT:
+                    return return_moves
+            n = curr_state.n
+
         if len(return_moves) < (MOVE_MAX_LIMIT / 4):
             for move in _HEX_STEPS:
                 new_spot = tuple(map(lambda x, y: x + y, move, (n / 2, n / 2)))
@@ -93,6 +128,13 @@ def get_down_hex_steps():
 def get_up_hex_steps():
     return _UP_HEX_STEPS
 
+def getColourPieces(board, colour):
+    colours = []
+    for i in reversed(range(board.n)):
+        for j in range(board.n):
+            if board.__getitem__((i,j)) == colour:
+                colours.append((i,j))
+    return colours
 
 def eval_func(self):
     return evaluate.evaluateReasonableMove(self)
