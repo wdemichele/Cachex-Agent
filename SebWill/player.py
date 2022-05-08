@@ -151,7 +151,7 @@ class Player:
         while True:
             x = randint(0, self.board.n)
             y = randint(0, self.board.n)
-            if not self.board.is_occupied((x, y)):
+            if self.board.inside_bounds((x, y)) and not self.board.is_occupied((x, y)):
                 return self._PLACE + (x, y)
 
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
