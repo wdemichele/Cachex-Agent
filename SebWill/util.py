@@ -39,7 +39,7 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
     # Feasible to try perfect play
     if curr_state.n ** 2 - n_dots < MOVE_MAX_LIMIT:
         return get_all_moves(curr_state)
-
+    else:
         return_moves = []
         for move in _HEX_STEPS:
             for spot in red_tokens:
