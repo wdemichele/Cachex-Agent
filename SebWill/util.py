@@ -1,8 +1,12 @@
 import random
 import referee.board
 import copy
+<<<<<<< Updated upstream
 import evaluate
 import relevantMoves
+=======
+from SebWill import evaluate
+>>>>>>> Stashed changes
 
 # MINIMAX_MIN needs to be lower than anything that eval could return
 MINIMAX_MIN = -50
