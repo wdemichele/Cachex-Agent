@@ -166,7 +166,7 @@ class Player:
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
 
         if depth == util.DEPTH_LIMIT:
-            return util.eval_func(game_state), game_state
+            return util.eval_func(self,game_state), game_state
 
         if is_maximizing:
             # set to number below minimum of eval func
