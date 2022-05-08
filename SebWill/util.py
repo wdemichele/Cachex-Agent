@@ -9,7 +9,7 @@ MINIMAX_MIN = -50
 MINIMAX_MAX = 50
 
 # DEPTH_LIMIT declared here: subject o change, may be worth change during runtime for better efficiency
-DEPTH_LIMIT = 4
+DEPTH_LIMIT = 3
 
 # MOVE_MAX_LIMIT: how many moves we are willing to consider at any given layer of minimax
 MOVE_MAX_LIMIT = 60
