@@ -102,6 +102,6 @@ def get_colour_pieces(board, colour):
     return colours
 
 
-def eval_func(self):
-    return evaluate.evaluateReasonableMove(self)
+def eval_func(player, curr_state: referee.board):
+    return evaluate.evaluateReasonableMove(player, curr_state)
     # return random.randint(-5, 5)
