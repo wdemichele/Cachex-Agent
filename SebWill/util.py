@@ -36,35 +36,50 @@ def make_state_from_move(curr_state: referee.board, move, player):
 
 
 def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, blue_tokens):
+    n = curr_state.n
     # Feasible to try perfect play
-    if curr_state.n ** 2 - n_dots < MOVE_MAX_LIMIT:
+    if n ** 2 - n_dots < MOVE_MAX_LIMIT:
         return get_all_moves(curr_state)
-    else:
-        return_moves = []
-        for move in _HEX_STEPS:
-            for spot in red_tokens:
-                # propogate possible moves
-                new_spot = tuple(map(lambda x, y: x + y, spot, move))
-                if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
-                    return_moves.append(new_spot)
-            for spot in blue_tokens:
-                new_spot = tuple(map(lambda x, y: x + y, spot, move))
-                if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
-                    return_moves.append(new_spot)
-            if len(return_moves) > MOVE_MAX_LIMIT:
-                return return_moves
-        if len(return_moves) < (MOVE_MAX_LIMIT / 4):
-            for move in _HEX_STEPS:
-                new_spot = tuple(map(lambda x, y: x + y, move, (n / 2, n / 2)))
-                if not curr_state.is_occupied(new_spot):
-                    return_moves.append(new_spot)
-        elif len(return_moves) < (MOVE_MAX_LIMIT / 3):
-            for move in _HALF_HEX_STEPS:
-                new_spot = tuple(map(lambda x, y: x + y, move, (n / 2, n / 2)))
-                if not curr_state.is_occupied(new_spot):
-                    return_moves.append(new_spot)
 
-        return return_moves
+    return_moves = []
+    for move in _HEX_STEPS:
+        for spot in red_tokens:
+            new_spot = tuple(map(lambda x, y: x + y, spot, move))
+            if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
+                return_moves.append(new_spot)
+        for spot in blue_tokens:
+            new_spot = tuple(map(lambda x, y: x + y, spot, move))
+            if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
+                return_moves.append(new_spot)
+        if len(return_moves) > MOVE_MAX_LIMIT:
+            return return_moves
+
+    if len(return_moves) < (MOVE_MAX_LIMIT / 2):
+        if player == "blue":
+            for i in range(curr_state.n):
+                if not curr_state.is_occupied((i, 0)):
+                    return_moves.append((i, 0))
+                if not curr_state.is_occupied((i, n)):
+                    return_moves.append((i, n))
+        else:
+            for i in range(curr_state.n):
+                if not curr_state.is_occupied((0, i)):
+                    return_moves.append((0, i))
+                if not curr_state.is_occupied((n, i)):
+                    return_moves.append((n, i))
+
+    if len(return_moves) < (MOVE_MAX_LIMIT / 5):
+        for move in _HEX_STEPS:
+            new_spot = tuple(map(lambda x, y: x + y, move, (n / 2, n / 2)))
+            if not curr_state.is_occupied(new_spot):
+                return_moves.append(new_spot)
+    elif len(return_moves) < (MOVE_MAX_LIMIT / 4):
+        for move in _HALF_HEX_STEPS:
+            new_spot = tuple(map(lambda x, y: x + y, move, (n / 2, n / 2)))
+            if not curr_state.is_occupied(new_spot):
+                return_moves.append(new_spot)
+
+    return return_moves
 
 
 def get_all_moves(curr_state: referee.board):
