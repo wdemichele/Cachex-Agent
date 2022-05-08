@@ -1,5 +1,5 @@
 import referee.board
-import util
+from SebWill import util
 from random import randint
 
 
@@ -22,7 +22,7 @@ class Player:
         self.n_tokens = 0
         self.opp_tokens = []
         self.player_tokens = []
-        self.corners = [(0, 0), (0, n), (n, 0), (n, n)]
+        self.corners = [(0, 0), (0, n-1), (n-1, 0), (n-1, n-1)]
         self.token_to_build_on = None
 
     def action(self):
@@ -97,7 +97,7 @@ class Player:
                 steps = util.get_down_hex_steps()
         for move in steps:
             new_spot = tuple(map(lambda x, y: x + y, move, self.token_to_build_on))
-            if not self.board.is_occupied(new_spot) and self.board.inside_bounds(new_spot):
+            if self.board.inside_bounds(new_spot) and not self.board.is_occupied(new_spot):
                 self.token_to_build_on = new_spot
                 return self._PLACE + new_spot
         return self.fallback_strategy()
@@ -141,7 +141,7 @@ class Player:
                 block_spots = util.get_left_hex_steps()
             for move in block_spots:
                 new_spot = tuple(map(lambda x, y: x + y, move, spot_closest_to_end))
-                if not self.board.is_occupied(new_spot) and self.board.inside_bounds(new_spot):
+                if self.board.inside_bounds(new_spot) and not self.board.is_occupied(new_spot):
                     self.token_to_build_on = new_spot
                     return self._PLACE + new_spot
 
@@ -157,7 +157,7 @@ class Player:
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
 
         if depth == util.DEPTH_LIMIT:
-            return util.eval_func(game_state)
+            return util.eval_func(game_state), game_state
 
         if is_maximizing:
             # set to number below minimum of eval func
