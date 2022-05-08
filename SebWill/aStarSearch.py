@@ -1,4 +1,4 @@
-import structures
+from SebWill import structures
 
 PLAYER, OPPOSITION, EMPTY = 'red', 'blue', None
 
