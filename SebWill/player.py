@@ -66,6 +66,7 @@ class Player:
                         self.opp_tokens.remove(cap)
 
     def employ_strategy(self):
+        # Starting move
         if self.n_tokens < 2:
             if self.player == "blue" and self.opp_tokens in self.corners:
                 self.token_to_build_on = (self.opp_tokens[0][1], self.opp_tokens[1][0])
@@ -76,13 +77,20 @@ class Player:
                     if not self.board.is_occupied(corner):
                         self.token_to_build_on = corner
                         return self._PLACE + corner
+        # Small board, go straight to minimax
         if self.board.n < 6:
             return self._PLACE + self.alpha_beta_minimax(0, self.board, True,
                                                          util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
-        if self.n_tokens >= self.board.n:
+        if self.n_tokens >= (self.board.n * 1.5):
             return self._PLACE + self.alpha_beta_minimax(0, self.board, True,
                                                          util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
+        # Start with a very defensive outlook, 4 in 5 chance of going for block over build
         if self.n_tokens <= self.board.n / 2:
+            if randint(0, 4) % 5 == 0:
+                return self.build()
+            return self.block()
+        # If past start, but board still to big to go for full minimax, 1 in 3 chance of build over block
+        if randint(0, 2) % 3 == 0:
             return self.build()
         return self.block()
 
