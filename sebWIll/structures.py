@@ -75,7 +75,7 @@ class Path:
         length = len(self.path)
         for tile in reversed(self.path):
             # print(f"({tile.row},{tile.column}): {board.board[board.size - 1 - tile.row][tile.column].colour}")
-            if board.board[board.size - 1 - tile.row][tile.column].colour == player:
+            if board.__getitem__((tile.row,tile.column)) == player:
                 length -= 1
         return length
         
