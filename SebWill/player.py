@@ -1,10 +1,12 @@
+import random
+
 import referee.board
 from SebWill import util
 from random import randint
 
 
 class Player:
-    _STEAL = tuple("STEAL", )
+    _STEAL = ("STEAL", )
     _PLACE = ("PLACE",)
 
     def __init__(self, player, n):
@@ -24,6 +26,7 @@ class Player:
         self.player_tokens = []
         self.corners = [(0, 0), (0, n-1), (n-1, 0), (n-1, n-1)]
         self.token_to_build_on = None
+        self.trans_table = dict()
 
     def action(self):
         """
@@ -68,8 +71,8 @@ class Player:
     def employ_strategy(self):
         # Starting move
         if self.n_tokens < 2:
-            if self.player == "blue" and self.opp_tokens in self.corners:
-                self.token_to_build_on = (self.opp_tokens[0][1], self.opp_tokens[1][0])
+            if self.player == "blue" and self.opp_tokens[0] in self.corners:
+                self.token_to_build_on = (self.opp_tokens[0][1], self.opp_tokens[0][0])
                 return self._STEAL
             else:
                 for i in range(len(self.corners) + 2):
@@ -79,11 +82,15 @@ class Player:
                         return self._PLACE + corner
         # Small board, go straight to minimax
         if self.board.n < 6:
-            return self._PLACE + self.alpha_beta_minimax(0, self.board, True,
-                                                         util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
+            # print(self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX))
+            move = self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
+            self.trans_table.clear()
+            return self._PLACE + move
         if self.n_tokens >= (self.board.n * 1.5):
-            return self._PLACE + self.alpha_beta_minimax(0, self.board, True,
-                                                         util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
+            move = self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
+            self.trans_table.clear()
+            print(self.trans_table)
+            return self._PLACE + move
         # Start with a very defensive outlook, 4 in 5 chance of going for block over build
         if self.n_tokens <= self.board.n / 2:
             if randint(0, 4) % 5 == 0:
@@ -163,30 +170,34 @@ class Player:
             if self.board.inside_bounds((x, y)) and not self.board.is_occupied((x, y)):
                 return self._PLACE + (x, y)
 
-    def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta):
+    def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta) -> (int, (int, int)):
 
         if depth == util.DEPTH_LIMIT:
-            return util.eval_func(self,game_state), game_state
+            # return random.randint(-5, 5), None
+            return util.eval_func(self.player, game_state), (0, 0)
 
         if is_maximizing:
             # set to number below minimum of eval func
             curr_max = util.MINIMAX_MIN
             curr_best_move = None
-
             for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
                                                   self.player_tokens, self.opp_tokens):
 
                 move_state = util.make_state_from_move(game_state, move, self.player)
-                value = self.alpha_beta_minimax(depth + 1, move_state, False, alpha, beta)[0]
+                if self.trans_table.get(move_state.digest()) is not None:
+                    continue
+                else:
+                    self.trans_table[move_state.digest()] = True
+                    value = self.alpha_beta_minimax(depth + 1, move_state, False, alpha, beta)[0]
 
-                if value > curr_max:
-                    curr_max = value
-                    curr_best_move = move
-                alpha = max(alpha, curr_max)
+                    if value > curr_max:
+                        curr_max = value
+                        curr_best_move = move
+                    alpha = max(alpha, curr_max)
 
-                if beta <= alpha:
-                    # pruning principle
-                    break
+                    if beta <= alpha:
+                        # pruning principle
+                        break
 
             return curr_max, curr_best_move
         else:
@@ -198,14 +209,18 @@ class Player:
                                                   self.player_tokens, self.opp_tokens):
 
                 move_state = util.make_state_from_move(game_state, move, self.player)
-                value = self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
+                if self.trans_table.get(move_state.digest()):
+                    continue
+                else:
+                    self.trans_table[move_state.digest()] = True
+                    value = self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
 
-                if value < curr_min:
-                    curr_min = value
-                    curr_best_move = move
-                beta = min(beta, curr_min)
+                    if value < curr_min:
+                        curr_min = value
+                        curr_best_move = move
+                    beta = min(beta, curr_min)
 
-                if beta <= alpha:
-                    break
+                    if beta <= alpha:
+                        break
 
             return curr_min, curr_best_move

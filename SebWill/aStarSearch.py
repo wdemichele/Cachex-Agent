@@ -29,6 +29,8 @@ def searchStart(board,start,goal,player):
     goal = structures.Location(goal[0], goal[1])
 
     final_path = aStarSearch(start, goal, board, player)
+    if final_path is None:
+        return 70
     # final_path.printPath(board, player)
     # board.printBoard()
     return (final_path.getLength(board, player))
@@ -109,7 +111,7 @@ def aStarSearch(start, goal, Board, player):
 
                 queue.insert(newMoveNode)
 
-    return path
+    return None
 
 def getAdjacentSpots(Board, location, noCostColour, all):
     retVal = []

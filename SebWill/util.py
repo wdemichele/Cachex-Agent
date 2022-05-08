@@ -4,10 +4,10 @@ import copy
 from SebWill import evaluate
 
 # MINIMAX_MIN needs to be lower than anything that eval could return
-MINIMAX_MIN = -50
+MINIMAX_MIN = -70
 
 # MINIMAX_MAX needs to be higher than anything that eval could return
-MINIMAX_MAX = 50
+MINIMAX_MAX = 70
 
 # DEPTH_LIMIT declared here: subject o change, may be worth change during runtime for better efficiency
 DEPTH_LIMIT = 3
@@ -78,7 +78,6 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
             new_spot = tuple(map(lambda x, y: x + y, move, (n / 2, n / 2)))
             if not curr_state.is_occupied(new_spot):
                 return_moves.append(new_spot)
-
     return return_moves
 
 
@@ -118,5 +117,5 @@ def get_colour_pieces(board, colour):
 
 
 def eval_func(player, curr_state: referee.board):
-    return evaluate.evaluateReasonableMove(player, curr_state)
+    return evaluate.evaluate(player, curr_state)
     # return random.randint(-5, 5)
