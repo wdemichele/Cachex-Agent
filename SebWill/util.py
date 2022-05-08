@@ -1,6 +1,7 @@
 import random
 import referee.board
 import copy
+import evaluate
 
 # MINIMAX_MIN needs to be lower than anything that eval could return
 MINIMAX_MIN = -50
@@ -93,5 +94,6 @@ def get_up_hex_steps():
     return _UP_HEX_STEPS
 
 
-def eval_func(game_state: referee.board):
-    return random.randint(-5, 5)
+def eval_func(self):
+    return evaluate.evaluateReasonableMove(self)
+    # return random.randint(-5, 5)
