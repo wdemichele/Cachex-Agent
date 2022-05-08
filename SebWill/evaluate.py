@@ -86,13 +86,17 @@ def getShortestWin(game_state: referee.board.Board, player: str, skipFactor):
     for i in range(0, game_state.n, skipFactor):
         for j in range(0, game_state.n, skipFactor):
             if player == "blue":
+
                 pathDist = aStarSearch.searchStart(game_state, [i, 0], [j, game_state.n - 1], player)
+
                 if pathDist < shortestDist:
                     shortestDist = pathDist
                     shortestDistPath = [[i, 0], [j, game_state.n - 1]]
                 # print("("+str(i)+","+str(0)+") to ("+str(j)+","+str(board.size-1)+"): "+str(pathDist),end="|")
             else:
+                # print("CHECKPOINT 1")
                 pathDist = aStarSearch.searchStart(game_state, [0, i], [game_state.n - 1, j], player)
+                # print(f"CHECKPOINT2 with pathdist = {pathDist}")
                 if pathDist < shortestDist:
                     shortestDist = pathDist
                     shortestDistPath = [[0, i], [game_state.n - 1, j]]
