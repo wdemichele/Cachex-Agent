@@ -71,7 +71,8 @@ class Player:
                 self.token_to_build_on = (self.opp_tokens[0][1], self.opp_tokens[1][0])
                 return self._STEAL
             else:
-                for corner in self.corners:
+                for i in range(len(self.corners) + 2):
+                    corner = self.corners[randint(0, 3)]
                     if not self.board.is_occupied(corner):
                         self.token_to_build_on = corner
                         return self._PLACE + corner
