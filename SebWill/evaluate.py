@@ -23,62 +23,6 @@ _ADD = lambda a, b: (a[0] + b[0], a[1] + b[1])
 # _PLAYER = "red"
 # _BOARD_SIZE = 10
 
-def evaluate_reasonable_move(player: str, game_state):
-    opposition = "blue"
-    if player == "blue":
-        opposition = "red"
-
-    reasonableMoves = [[], [], [], []]
-
-    # look for capture opportunities against opposition
-    oppOccupy = getColourPieces(game_state, opposition)
-    for location in oppOccupy:
-        captures = relevantMoves.is_captureable(game_state, location[0], location[1], game_state)
-        reasonableMoves[0].extend(captures)
-
-    # prevent capture opportunities against player
-    playerOccupy = getColourPieces(game_state, player)
-    for location in playerOccupy:
-        captures = relevantMoves.is_captureable(game_state, location[0], location[1], opposition)
-        reasonableMoves[1].extend(captures)
-
-    # only search for forks if direct captures are empty
-    if len(reasonableMoves[0]) == 0 and len(reasonableMoves[1]) == 0:
-
-        # look for fork opportunities against opposition
-        for location in oppOccupy:
-            forks = relevantMoves.is_forkable(game_state, location[0], location[1], player)
-            reasonableMoves[2].extend(forks)
-
-        # prevent fork opportunities against player
-        for location in playerOccupy:
-            forks = relevantMoves.is_forkable(game_state, location[0], location[1], opposition)
-            reasonableMoves[3].extend(forks)
-
-    for i in range(4):
-        reasonableMoves[i] = list(set(reasonableMoves[i]))
-
-    # print("Reasonable moves that lead to capture or fork: ")
-    # print(reasonableMoves)
-    # print()
-
-    starting_board_state = copy.copy(game_state)
-
-    best_move = (None, _MIN)
-
-    for strategyType in reasonableMoves:
-        for move in strategyType:
-            game_state.place(player, (move[0], move[1]))
-            # print("Current Move: " + str(move))
-            # print("Evaluation: "+ str(evaluate(p)))
-            curr_move = (move, evaluate(player, game_state))
-            if curr_move[1] > best_move[1]:
-                best_move = curr_move
-            game_state = starting_board_state
-    print(best_move)
-    return best_move[1]
-
-
 def evaluate(player, game_state):
     opposition = "blue"
     if player == "blue":
@@ -94,16 +38,16 @@ def evaluate(player, game_state):
 
 def state_eval(player: str, opposition: str, game_state: referee.board, piece_square_table: pieceSquareTable):
     f1 = get_longest_connected_coord(player, opposition, game_state)
-    # f2 = getShortestWin(game_state, player, 4)
+    f2 = getShortestWin(game_state, player, 4)
     f3 = get_potential_to_be_captured(player, opposition, game_state) - get_potential_to_be_captured(opposition, player, game_state)
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
     f5 = get_piece_square_dominace(player, game_state, piece_square_table)
     w1 = 1
-    # w2
+    w2 = 1.5
     w3 = 0.8
     w4 = 0.5
     w5 = 0.05
-    return w1 * f1 + w3 * f3 + w4 * f4 + w5*f5
+    return w1 * f1 + w2*f2 + w3 * f3 + w4 * f4 + w5*f5
 
 
 def get_longest_connected_coord(player, opposition, game_state):
@@ -216,13 +160,7 @@ def getShortestWin(game_state: referee.board.Board, player: str, skipFactor):
     return shortestDist
 
 
-def getColourPieces(board, colour):
-    colours = []
-    for i in reversed(range(board.n)):
-        for j in range(board.n):
-            if board.__getitem__((i, j)) == colour:
-                colours.append((i, j))
-    return colours
+
 
 def get_piece_square_dominace(player, game_state, piece_square_table: pieceSquareTable):
     # edge and corner and central pieces are weighted as more advantageous

@@ -4,6 +4,7 @@ from SebWill.structures import pieceSquareTable
 import referee.board
 import copy
 from SebWill import evaluate
+from SebWill import relevantMoves
 
 # MINIMAX_MIN needs to be lower than anything that eval could return
 MINIMAX_MIN = -70
@@ -48,6 +49,33 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
         return get_all_moves(curr_state)
 
     return_moves = []
+
+    opposition = "blue"
+    if player == "blue":
+        opposition = "red"
+
+    # look for capture and fork opportunities against opposition
+    oppOccupy = getColourPieces(curr_state, opposition)
+    for location in oppOccupy:
+        captures = relevantMoves.is_captureable(curr_state, location[0], location[1], curr_state)
+        return_moves.extend(captures)
+        forks = relevantMoves.is_forkable(curr_state, location[0], location[1], player)
+        return_moves.extend(forks)
+
+    # prevent capture and fork opportunities against player
+    playerOccupy = getColourPieces(curr_state, player)
+    for location in playerOccupy:
+        captures = relevantMoves.is_captureable(curr_state, location[0], location[1], opposition)
+        return_moves.extend(captures)
+        forks = relevantMoves.is_forkable(curr_state, location[0], location[1], opposition)
+        return_moves.extend(forks)
+       
+
+    return_moves = list(set(return_moves))
+
+    if len(return_moves) >= 0:
+        return return_moves
+
     steps = _HEX_STEPS
 
     if time_used > (n ** 2) * 0.4 or n >= 10:
@@ -127,3 +155,11 @@ def eval_func(player: str, opposition: str, curr_state: referee.board, pieceSqua
     # return evaluate.evaluate(player, curr_state)
     # return random.randint(-5, 5)
     return evaluate.state_eval(player, opposition, curr_state, pieceSquareTable)
+
+def getColourPieces(board, colour):
+    colours = []
+    for i in reversed(range(board.n)):
+        for j in range(board.n):
+            if board.__getitem__((i, j)) == colour:
+                colours.append((i, j))
+    return colours
