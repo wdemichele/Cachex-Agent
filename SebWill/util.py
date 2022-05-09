@@ -13,7 +13,7 @@ MINIMAX_MAX = 70
 DEPTH_LIMIT = 3
 
 # MOVE_MAX_LIMIT: how many moves we are willing to consider at any given layer of minimax
-MOVE_MAX_LIMIT = 60
+MOVE_MAX_LIMIT = 55
 
 # MOVE_MIN_LIMIT: the min limit representing when we have not considered enough moves to garner 'good' play
 MOVE_MIN_LIMIT = 4
@@ -38,7 +38,7 @@ def make_state_from_move(curr_state: referee.board, move, player):
 def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, blue_tokens):
     n = curr_state.n
     # Feasible to try perfect play
-    if n ** 2 - n_dots < MOVE_MAX_LIMIT:
+    if n ** 2 - (n_dots * 0.8) < MOVE_MAX_LIMIT:
         return get_all_moves(curr_state)
 
     return_moves = []
