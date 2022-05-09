@@ -16,6 +16,7 @@ _DIAGONAL_DOWN_LEFT = (-1, 0)
 
 _ADD = lambda a, b: (a[0] + b[0], a[1] + b[1])
 
+
 # _PLAYER = "red"
 # _BOARD_SIZE = 10
 
@@ -85,13 +86,14 @@ def get_token_numerical_supremacy(player, opposition, game_state):
                 n_opp_tokens += 1
     return n_player_tokens - n_opp_tokens
 
+
 def get_potential_to_be_captured(player, opposition, game_state):
     player_gets_capped_potential = 0
 
     for i in range(game_state.n):
         for j in range(game_state.n):
             if game_state.__getitem__((i, j)) == player:
-                player_gets_capped_potential += check_capture_in_one_move((i, j), player, opposition, game_state)
+                player_gets_capped_potential -= check_capture_in_one_move((i, j), player, opposition, game_state)
     return player_gets_capped_potential
 
 
