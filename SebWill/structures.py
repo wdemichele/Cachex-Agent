@@ -109,9 +109,10 @@ class PriorityQueue(object):
             for i in range(len(self.queue)):
                 if self.queue[i] < self.queue[min]:
                     min = i
+
             item = self.queue[min]
             del self.queue[min]
             return item
         except IndexError:
-            print()
+            print("Index error in queue")
             exit()

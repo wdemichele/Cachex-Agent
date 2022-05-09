@@ -93,7 +93,8 @@ def evaluate(player, game_state):
 
 def state_eval(player: str, opposition: str, game_state: referee.board):
     f1 = get_longest_connected_coord(player, opposition, game_state)
-    return f1
+    f2 = getShortestWin(game_state, player, 2) - getShortestWin(game_state, opposition, 2)
+    return f1 + f2
 
 
 def get_longest_connected_coord(player, opposition, game_state):
@@ -111,7 +112,7 @@ def get_longest_connected_coord(player, opposition, game_state):
 def get_keyspot_dominance(player, opposition, game_state):
     player_score = 0
     opp_score = 0
-    for i in range(game_state.n):
+    for i in range(game_state.n, 2):
         for j in [0, game_state.n - 1]:
             if game_state.__getitem__((j, i)) == player:
                 if i == j:
@@ -205,9 +206,7 @@ def getShortestWin(game_state: referee.board.Board, player: str, skipFactor):
                     shortestDistPath = [[i, 0], [j, game_state.n - 1]]
                 # print("("+str(i)+","+str(0)+") to ("+str(j)+","+str(board.size-1)+"): "+str(pathDist),end="|")
             else:
-                # print("CHECKPOINT 1")
                 pathDist = aStarSearch.searchStart(game_state, [0, i], [game_state.n - 1, j], player)
-                # print(f"CHECKPOINT2 with pathdist = {pathDist}")
                 if pathDist < shortestDist:
                     shortestDist = pathDist
                     shortestDistPath = [[0, i], [game_state.n - 1, j]]

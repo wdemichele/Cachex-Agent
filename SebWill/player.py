@@ -193,7 +193,7 @@ class Player:
             curr_max = util.MINIMAX_MIN
             curr_best_move = None
             for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
-                                                  self.player_tokens, self.opp_tokens):
+                                                  self.player_tokens, self.opp_tokens, self.timer.get_count()):
 
                 if depth % 2 == 1:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)
@@ -221,7 +221,7 @@ class Player:
             curr_best_move = None
             # Generate children
             for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
-                                                  self.player_tokens, self.opp_tokens):
+                                                  self.player_tokens, self.opp_tokens, self.timer.get_count()):
 
                 if depth % 2 == 1:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)

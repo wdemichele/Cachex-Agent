@@ -22,18 +22,17 @@ class AStarNode:
         return self.f > other.f
 
 
-def searchStart(board,start,goal,player):
+def searchStart(board, start, goal, player):
 
     # Save start and goal
     start = structures.Location(start[0], start[1])
     goal = structures.Location(goal[0], goal[1])
-
     final_path = aStarSearch(start, goal, board, player)
     if final_path is None:
         return 70
     # final_path.printPath(board, player)
     # board.printBoard()
-    return (final_path.getLength(board, player))
+    return final_path.getLength(board, player)
 
 def bonusHeuristic(Board, location1, location2, noCostColour): 
     steps = 0 if Board.__getitem__((location1.row,location1.column)) == noCostColour else 1
@@ -86,11 +85,12 @@ def aStarSearch(start, goal, Board, player):
 
     checked_list = []
     path = structures.Path()
-    while queue:
-
+    while queue.queue:
         # Get head of queue
         curr = queue.pop()
         checked_list.append(curr.location)
+
+
         if curr == goalNode:
             while curr is not None:
                 path.path.append(curr.location)
@@ -98,11 +98,18 @@ def aStarSearch(start, goal, Board, player):
             return path
 
         next_moves = getAdjacentSpots(Board, curr.location, player, False)
+
         for move in next_moves:
             if move not in checked_list:
+
                 newMoveNode = AStarNode(curr, move)
-                newMoveNode.g = curr.g if Board.__getitem__((move.row,move.column)) == player else curr.g +1
+                if Board.__getitem__((move.row, move.column)) == player:
+                    newMoveNode.g = curr.g
+                else:
+                    newMoveNode.g = curr.g + 1
+
                 newMoveNode.h = bonusHeuristic(Board, move, goal, player)
+
                 newMoveNode.f = newMoveNode.h + newMoveNode.g
 
                 for node in queue.queue:
@@ -110,7 +117,6 @@ def aStarSearch(start, goal, Board, player):
                         continue
 
                 queue.insert(newMoveNode)
-
     return None
 
 def getAdjacentSpots(Board, location, noCostColour, all):
