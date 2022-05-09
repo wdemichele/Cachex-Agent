@@ -1,12 +1,9 @@
-import random
-
-import referee.board
-from SebWill import util
+from SebWillOpponent import util
 from random import randint
 
 
 class Player:
-    _STEAL = ("STEAL", )
+    _STEAL = ("STEAL",)
     _PLACE = ("PLACE",)
 
     def __init__(self, player, n):
@@ -29,7 +26,7 @@ class Player:
         self.n_tokens = 0
         self.opp_tokens = []
         self.player_tokens = []
-        self.corners = [(0, 0), (0, n-1), (n-1, 0), (n-1, n-1)]
+        self.corners = [(0, 0), (0, n - 1), (n - 1, 0), (n - 1, n - 1)]
         self.token_to_build_on = None
         self.trans_table = dict()
 
@@ -72,7 +69,6 @@ class Player:
                         self.player_tokens.remove(cap)
                     else:
                         self.opp_tokens.remove(cap)
-
 
     def employ_strategy(self):
         # Starting move

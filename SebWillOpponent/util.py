@@ -1,7 +1,6 @@
-
 import referee.board
 import copy
-from SebWill import evaluate
+from SebWillOpponent import evaluate
 
 # MINIMAX_MIN needs to be lower than anything that eval could return
 MINIMAX_MIN = -70
