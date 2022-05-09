@@ -1,3 +1,4 @@
+from SebWill.structures import pieceSquareTable
 import referee.board
 from SebWill import aStarSearch
 from SebWill import relevantMoves
@@ -91,16 +92,18 @@ def evaluate(player, game_state):
     return w1 * f1 - w2 * f2
 
 
-def state_eval(player: str, opposition: str, game_state: referee.board):
+def state_eval(player: str, opposition: str, game_state: referee.board, piece_square_table: pieceSquareTable):
     f1 = get_longest_connected_coord(player, opposition, game_state)
     # f2 = getShortestWin(game_state, player, 4)
     f3 = get_potential_to_be_captured(player, opposition, game_state) - get_potential_to_be_captured(opposition, player, game_state)
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
+    f5 = get_piece_square_dominace(player, game_state, piece_square_table)
     w1 = 1
     # w2
     w3 = 0.8
     w4 = 0.5
-    return w1 * f1 + w3 * f3 + w4 * f4
+    w5 = 0.05
+    return w1 * f1 + w3 * f3 + w4 * f4 + w5*f5
 
 
 def get_longest_connected_coord(player, opposition, game_state):
@@ -220,3 +223,17 @@ def getColourPieces(board, colour):
             if board.__getitem__((i, j)) == colour:
                 colours.append((i, j))
     return colours
+
+def get_piece_square_dominace(player, game_state, piece_square_table: pieceSquareTable):
+    # edge and corner and central pieces are weighted as more advantageous
+    player_token_location_value = 0
+    opp_token_location_value = 0
+    for i in range(game_state.n):
+        for j in range(game_state.n):
+            if game_state.__getitem__((i, j)) is None:
+                continue
+            elif game_state.__getitem__((i, j)) == player:
+                player_token_location_value += piece_square_table.get_value((i,j))
+            else:
+                opp_token_location_value += piece_square_table.get_value((i,j))
+    return player_token_location_value - opp_token_location_value

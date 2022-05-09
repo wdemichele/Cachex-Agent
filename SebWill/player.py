@@ -1,4 +1,4 @@
-from SebWill import timer
+from SebWill import structures, timer
 from SebWill import util
 from random import randint
 
@@ -31,6 +31,7 @@ class Player:
         self.token_to_build_on = None
         self.trans_table = dict()
         self.timer = timer.Timer()
+        self.pieceSquareTable = structures.pieceSquareTable(n)
 
     def action(self):
         """
@@ -184,7 +185,7 @@ class Player:
 
         if depth == util.get_depth_limit(self.timer.count, self.board.n):
             # return random.randint(-5, 5), None
-            return util.eval_func(self.player, self.opposition, game_state), (0, 0)
+            return util.eval_func(self.player, self.opposition, game_state, self.pieceSquareTable), (0, 0)
 
         if is_maximizing:
             # set to number below minimum of eval func

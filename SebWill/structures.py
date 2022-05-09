@@ -16,40 +16,6 @@ class Spot:
         self.location = location
         self.colour = colour
 
-
-class Board:
-    def __init__(self, size):
-        self.size = size
-        self.board = []
-        for i in range(size):
-            line = []
-            for j in range(size):
-                location = Location((size - i - 1), j)
-                spot = Spot(location, "e")
-                line.append(spot)
-            self.board.append(line)
-
-    def fillSpot(self, row, column, colour):
-        self.board[self.size - 1 - row][column].colour = colour
-
-    def getAdjacentSpots(self, location, noCostColour, all):
-        retVal = []
-        spotsToCheck = [[0, -1], [-1, 0], [-1, 1], [0, 1], [1, 0], [1, -1]]
-        for move in spotsToCheck:
-            new_location = Location(location.row + move[0], location.column + move[1])
-            if new_location.row < 0 or new_location.row >= self.size or new_location.column < 0 or new_location.column >= self.size:
-                continue
-            else:
-                if all:
-                    spot = Spot(new_location, self.board[self.size - 1 - new_location.row][new_location.column].colour)
-                    retVal.append(spot)
-                else:    
-                    if self.board[self.size - 1 - new_location.row][new_location.column].colour == "e":
-                        retVal.append(new_location)
-                    elif self.board[self.size - 1 - new_location.row][new_location.column].colour == noCostColour:
-                        retVal.append(new_location)
-        return retVal
-
     def printBoard(self):
         for i in reversed(range(self.size)):
             space = "     "*i
@@ -116,3 +82,17 @@ class PriorityQueue(object):
         except IndexError:
             print("Index error in queue")
             exit()
+
+class pieceSquareTable():
+    def __init__(self,n):
+        self.values = {(i,j):((n - abs(n/2 - i -0.5) - abs(n/2 - j -0.5))) for i in range(0,n) for j in range(0,n)}
+
+        for i in range(n):
+            self.values[(i,0)] += n/2
+            self.values[(i,n-1)] += n/2
+
+        for j in range(n):
+            self.values[(0,j)] += n/2
+            self.values[(n-1,j)] += n/2
+    def get_value(self, location):
+        return self.values[(location[0],location[1])]

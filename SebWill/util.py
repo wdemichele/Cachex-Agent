@@ -1,4 +1,5 @@
 import random
+from SebWill.structures import pieceSquareTable
 
 import referee.board
 import copy
@@ -122,7 +123,7 @@ def get_depth_limit(time_spent: float, board_size: int):
         return DEPTH_LIMIT - 3
 
 
-def eval_func(player: str, opposition: str, curr_state: referee.board):
+def eval_func(player: str, opposition: str, curr_state: referee.board, pieceSquareTable: pieceSquareTable):
     # return evaluate.evaluate(player, curr_state)
     # return random.randint(-5, 5)
-    return evaluate.state_eval(player, opposition, curr_state)
+    return evaluate.state_eval(player, opposition, curr_state, pieceSquareTable)
