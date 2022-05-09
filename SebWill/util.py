@@ -1,4 +1,3 @@
-
 import referee.board
 import copy
 from SebWill import evaluate
@@ -10,7 +9,7 @@ MINIMAX_MIN = -70
 MINIMAX_MAX = 70
 
 # DEPTH_LIMIT declared here: subject o change, may be worth change during runtime for better efficiency
-DEPTH_LIMIT = 3
+DEPTH_LIMIT = 4
 
 # MOVE_MAX_LIMIT: how many moves we are willing to consider at any given layer of minimax
 MOVE_MAX_LIMIT = 55
@@ -114,6 +113,16 @@ def get_colour_pieces(board, colour):
             if board.__getitem__((i, j)) == colour:
                 colours.append((i, j))
     return colours
+
+
+def get_depth_limit(time_spent: float, board_size: int):
+    # if lots of time (90% of time limit or greater) and smaller board
+    if time_spent < (board_size ** 2) / 15.0 and board_size < 7:
+        return DEPTH_LIMIT
+    elif time_spent < (board_size ** 2) * 0.8:
+        return DEPTH_LIMIT - 1
+    else:
+        return DEPTH_LIMIT - 2
 
 
 def eval_func(player: str, opposition: str, curr_state: referee.board):

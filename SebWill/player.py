@@ -1,12 +1,10 @@
-import random
-
-import referee.board
+from SebWill import timer
 from SebWill import util
 from random import randint
 
 
 class Player:
-    _STEAL = ("STEAL", )
+    _STEAL = ("STEAL",)
     _PLACE = ("PLACE",)
 
     def __init__(self, player, n):
@@ -29,16 +27,20 @@ class Player:
         self.n_tokens = 0
         self.opp_tokens = []
         self.player_tokens = []
-        self.corners = [(0, 0), (0, n-1), (n-1, 0), (n-1, n-1)]
+        self.corners = [(0, 0), (0, n - 1), (n - 1, 0), (n - 1, n - 1)]
         self.token_to_build_on = None
         self.trans_table = dict()
+        self.timer = timer.Timer()
 
     def action(self):
         """
         Called at the beginning of your turn. Based on the current state
         of the game, select an action to play.
         """
-        return self.employ_strategy()
+        self.timer.start()
+        action = self.employ_strategy()
+        self.timer.stop()
+        return action
 
     def turn(self, player, action):
         """
@@ -72,7 +74,6 @@ class Player:
                         self.player_tokens.remove(cap)
                     else:
                         self.opp_tokens.remove(cap)
-
 
     def employ_strategy(self):
         # Starting move
@@ -183,7 +184,7 @@ class Player:
 
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta) -> (int, (int, int)):
 
-        if depth == util.DEPTH_LIMIT:
+        if depth == util.get_depth_limit(self.timer.count, self.board.n):
             # return random.randint(-5, 5), None
             return util.eval_func(self.player, self.opposition, game_state), (0, 0)
 
