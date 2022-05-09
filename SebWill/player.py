@@ -91,14 +91,12 @@ class Player:
         if self.board.n < 6:
             # print(self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX))
             move = self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
-            self.trans_table.clear()
             if move is None:
                 print("Movefinding error")
                 return self.fallback_strategy()
             return self._PLACE + move
         if self.n_tokens >= (self.board.n * 1.5):
             move = self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
-            self.trans_table.clear()
             if move is None:
                 print("Movefinding error")
                 return self.fallback_strategy()
@@ -199,20 +197,20 @@ class Player:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)
                 else:
                     move_state = util.make_state_from_move(game_state, move, self.player)
-                if self.trans_table.get(move_state.digest()) is not None:
-                    continue
+                if self.trans_table.get(move_state.digest()):
+                    value = self.trans_table.get(move_state.digest())
                 else:
-                    self.trans_table[move_state.digest()] = True
-                    value = self.alpha_beta_minimax(depth + 1, move_state, False, alpha, beta)[0]
+                    self.trans_table[move_state.digest()] = value = \
+                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
 
-                    if value >= curr_max:
-                        curr_max = value
-                        curr_best_move = move
-                    alpha = max(alpha, curr_max)
+                if value >= curr_max:
+                    curr_max = value
+                    curr_best_move = move
+                alpha = max(alpha, curr_max)
 
-                    if beta <= alpha:
-                        # pruning principle
-                        break
+                if beta <= alpha:
+                    # pruning principle
+                    break
 
             return curr_max, curr_best_move
         else:
@@ -228,17 +226,18 @@ class Player:
                 else:
                     move_state = util.make_state_from_move(game_state, move, self.player)
                 if self.trans_table.get(move_state.digest()):
-                    continue
+                    print("Duplicate state detected")
+                    value = self.trans_table.get(move_state.digest())
                 else:
-                    self.trans_table[move_state.digest()] = True
-                    value = self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
+                    self.trans_table[move_state.digest()] = value = \
+                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
 
-                    if value <= curr_min:
-                        curr_min = value
-                        curr_best_move = move
-                    beta = min(beta, curr_min)
+                if value <= curr_min:
+                    curr_min = value
+                    curr_best_move = move
+                beta = min(beta, curr_min)
 
-                    if beta <= alpha:
-                        break
+                if beta <= alpha:
+                    break
 
             return curr_min, curr_best_move

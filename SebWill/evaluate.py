@@ -93,8 +93,14 @@ def evaluate(player, game_state):
 
 def state_eval(player: str, opposition: str, game_state: referee.board):
     f1 = get_longest_connected_coord(player, opposition, game_state)
-    f2 = getShortestWin(game_state, player, 2) - getShortestWin(game_state, opposition, 2)
-    return f1 + f2
+    # f2 = getShortestWin(game_state, player, 4)
+    f3 = get_potential_to_be_captured(player, opposition, game_state) - get_potential_to_be_captured(opposition, player, game_state)
+    f4 = get_token_numerical_supremacy(player, opposition, game_state)
+    w1 = 1
+    # w2
+    w3 = 0.8
+    w4 = 0.5
+    return w1 * f1 + w3 * f3 + w4 * f4
 
 
 def get_longest_connected_coord(player, opposition, game_state):
@@ -194,27 +200,17 @@ def check_capture_in_one_move(coord, player, opposition, game_state):
 
 def getShortestWin(game_state: referee.board.Board, player: str, skipFactor):
     shortestDist = _MAX
-    shortestDistPath = [[-1, -1], [-1, -1]]
     for i in range(0, game_state.n, skipFactor):
         for j in range(0, game_state.n, skipFactor):
             if player == "blue":
-
                 pathDist = aStarSearch.searchStart(game_state, [i, 0], [j, game_state.n - 1], player)
-
                 if pathDist < shortestDist:
                     shortestDist = pathDist
-                    shortestDistPath = [[i, 0], [j, game_state.n - 1]]
-                # print("("+str(i)+","+str(0)+") to ("+str(j)+","+str(board.size-1)+"): "+str(pathDist),end="|")
             else:
                 pathDist = aStarSearch.searchStart(game_state, [0, i], [game_state.n - 1, j], player)
                 if pathDist < shortestDist:
                     shortestDist = pathDist
-                    shortestDistPath = [[0, i], [game_state.n - 1, j]]
-                # print("("+str(0)+","+str(i)+") to ("+str(board.size-1)+","+str(j)+"): "+str(pathDist),end="|")
-        # print()
-    # print("Player '"+player+"' Shortest Path: "+str(shortestDistPath[0])+" to "+str(shortestDistPath[1]),end="")
-    # print(": "+str(shortestDist))
-    return (shortestDist)
+    return shortestDist
 
 
 def getColourPieces(board, colour):

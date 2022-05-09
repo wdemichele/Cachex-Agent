@@ -17,12 +17,10 @@ DEPTH_LIMIT = 4
 MOVE_MAX_LIMIT = 55
 
 # FULL_SEARCH_MAX: the maximum number we all for a full search tree
-FULL_SEARCH_MAX = 36
+FULL_SEARCH_MAX = 29
 
 # MOVE_MIN_LIMIT: the min limit representing when we have not considered enough moves to garner 'good' play
 MOVE_MIN_LIMIT_FACTOR = 1.5
-
-
 
 _HEX_STEPS = [(1, -1), (1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1)]
 _HALF_HEX_STEPS = [(1, -1), (0, 1), (-1, 0)]
@@ -44,7 +42,7 @@ def make_state_from_move(curr_state: referee.board, move, player):
 def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, blue_tokens, time_used):
     n = curr_state.n
 
-    # Feasible to try perfect play (if less than fourty percent of board has been placed on and board is not too big)
+    # Feasible to try perfect play (if less than forty percent of board has been placed on and board is not too big)
     if n_dots <= (0.4 * n ** 2) and n ** 2 - n_dots <= FULL_SEARCH_MAX:
         return get_all_moves(curr_state)
 
@@ -68,7 +66,8 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
 
     # if amount of moves not ideal for good play
     if len(return_moves) < (MOVE_MIN_LIMIT_FACTOR * n):
-        for i in range(MOVE_MIN_LIMIT_FACTOR * n - len(return_moves)):
+        moves_to_go = int(MOVE_MIN_LIMIT_FACTOR * n - len(return_moves))
+        for i in range(moves_to_go):
             x, y = random.randint(0, n - 1), random.randint(0, n - 1)
             if curr_state.inside_bounds((x, y)) and not curr_state.is_occupied((x, y)):
                 if (x, y) not in return_moves:
@@ -113,7 +112,7 @@ def get_colour_pieces(board, colour):
 
 def get_depth_limit(time_spent: float, board_size: int):
     # if lots of time (90% of time limit or greater) and smaller board
-    if time_spent < (board_size ** 2) / 15.0 and board_size < 6:
+    if time_spent < (board_size ** 2) / 15.0 and board_size < 4:
         return DEPTH_LIMIT
     elif time_spent < (board_size ** 2) * 0.70:
         return DEPTH_LIMIT - 1
