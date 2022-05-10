@@ -185,7 +185,6 @@ class Player:
     def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta) -> (int, (int, int)):
 
         if depth == util.get_depth_limit(self.timer.count, self.board.n):
-            # return random.randint(-5, 5), None
             return util.eval_func(self.player, self.opposition, game_state, self.piece_square_table,
                                   self.n_tokens, self.n_turns), (0, 0)
 
@@ -195,7 +194,6 @@ class Player:
             curr_best_move = None
             for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
                                                   self.player_tokens, self.opp_tokens, self.timer.get_count()):
-
                 if depth % 2 == 1:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)
                 else:

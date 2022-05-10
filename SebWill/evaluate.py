@@ -5,21 +5,6 @@ from SebWill import relevantMoves
 import copy
 from SebWill import timer
 
-_SKIP_FACTOR = 3
-_MIN = -70
-_MAX = 70
-
-_DOWN = (-2, 1)
-_UP = (2, -1)
-_LEFT = (0, -1)
-_RIGHT = (0, 1)
-_DIAGONAL_UP_RIGHT = (1, 0)
-_DIAGONAL_UP_LEFT = (1, -1)
-_DIAGONAL_DOWN_RIGHT = (-1, 1)
-_DIAGONAL_DOWN_LEFT = (-1, 0)
-
-_ADD = lambda a, b: (a[0] + b[0], a[1] + b[1])
-
 
 class EvalTimer:
 
@@ -46,6 +31,22 @@ class EvalTimer:
     def get_count(self):
         return self.timer.get_count()
 
+
+_SKIP_FACTOR = 3
+_TIMER_FACTOR = 1
+_MIN = -70
+_MAX = 70
+
+_DOWN = (-2, 1)
+_UP = (2, -1)
+_LEFT = (0, -1)
+_RIGHT = (0, 1)
+_DIAGONAL_UP_RIGHT = (1, 0)
+_DIAGONAL_UP_LEFT = (1, -1)
+_DIAGONAL_DOWN_RIGHT = (-1, 1)
+_DIAGONAL_DOWN_LEFT = (-1, 0)
+
+_ADD = lambda a, b: (a[0] + b[0], a[1] + b[1])
 
 _EVAL_TIMER = EvalTimer()
 
@@ -108,11 +109,12 @@ def evaluate_reasonable_move(player: str, game_state):
 
 def evaluate(player: str, opposition: str, game_state: referee.board, piece_square_table: pieceSquareTable,
              n_tokens, n_turns):
-    # if new move
+    # if new move, reset the move timer
     if _EVAL_TIMER.get_curr_turns() != n_turns:
         _EVAL_TIMER.new_move(n_turns)
 
     w1, w2, w3, w4, w5 = 1, 0.8, 1.5, 0.92, 1.6
+
     if game_state.n > 5:
         w5 = 0.42
 
@@ -120,9 +122,11 @@ def evaluate(player: str, opposition: str, game_state: referee.board, piece_squa
     f3 = get_potential_to_be_captured(player, opposition, game_state)
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
     f5 = get_piece_square_dominace(player, game_state, piece_square_table)
-    if n_tokens < game_state.n * 2 - 2 or _EVAL_TIMER.get_turn_time() > game_state.n:
+
+    if n_tokens < game_state.n * 2 - 2 or _EVAL_TIMER.get_turn_time() > game_state.n - _TIMER_FACTOR:
         w2 = 1
         return w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
+
     f1 = get_shortest_win_path(game_state, player, opposition, game_state.n - 1)
     return f1 * w1 + w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
 
