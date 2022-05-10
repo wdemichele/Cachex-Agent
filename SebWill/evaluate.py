@@ -32,6 +32,7 @@ class EvalTimer:
         return self.timer.get_count()
 
 
+_SKIP_FACTOR = 2
 _TIMER_FACTOR = 2.9
 _MIN = -70
 _MAX = 70
@@ -56,7 +57,7 @@ def evaluate(player: str, opposition: str, game_state: board, piece_square_table
     if _EVAL_TIMER.get_curr_turns() != n_turns:
         _EVAL_TIMER.new_move(n_turns)
 
-    w1, w2, w3, w4, w5 = 1, 0.8, 1.4, 0.92, 0.4
+    w1, w2, w3, w4, w5 = 1, 0.8, 1.1, 0.92, 0.4
 
     if game_state.n > 5:
         w5 = 0.42
@@ -74,7 +75,7 @@ def evaluate(player: str, opposition: str, game_state: board, piece_square_table
         return w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
 
     f2 = get_longest_connected_coord(player, opposition, game_state)
-    f1 = get_shortest_win_path(game_state, player, opposition, game_state.n - 1)
+    f1 = get_shortest_win_path(game_state, player, opposition, game_state.n - _SKIP_FACTOR)
     return f1 * w1 + w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
 
 
@@ -193,46 +194,52 @@ def check_capture_in_one_move(coord, player, opposition, game_state):
 
 
 def get_shortest_win_path(game_state: board.Board, player: str, opposition: str, skip_factor):
-    return -(getShortestWin(game_state, player, opposition, skip_factor) - getShortestWin(game_state, opposition, player, skip_factor))
+    return -(getShortestWin(game_state, player, opposition, skip_factor) - getShortestWin(game_state, opposition,
+                                                                                          player, skip_factor))
 
 
 def getShortestWin(game_state: board.Board, player: str, opposition: str, skipFactor):
     shortest_dist = _MAX
-    for i in range(0, game_state.n-1, skipFactor):        
-        for j in range(0, game_state.n-1, skipFactor):
+    for i in range(0, game_state.n, skipFactor):
+        for j in range(0, game_state.n, skipFactor):
 
-            #check for available start state within breadth of skip factor
+            # check for available start state within breadth of skip factor
+            new_i, new_j = i, j
             for k in range(skipFactor):
-                if game_state.__getitem__((i, 0)) == opposition:
-                    i+= 1
-                    if k == skipFactor-1:
+                if game_state.__getitem__((new_i, 0)) == opposition:
+                    new_i += 1
+                    if new_i >= game_state.n:
                         break
+                    if k == skipFactor - 1:
+                        break
+            if new_i >= game_state.n:
+                continue
 
-            #check for available start state within breadth of skip factor
+            # check for available start state within breadth of skip factor
             for k in range(skipFactor):
-                if game_state.__getitem__((j, game_state.n - 1)) == opposition:
-                    j+= 1
-                    if k == skipFactor-1:
-                        continue
+                if game_state.__getitem__((new_j, game_state.n - 1)) == opposition:
+                    new_j += 1
+                    if new_j >= game_state.n:
+                        break
+                    if k == skipFactor - 1:
+                        break
+            if new_j >= game_state.n:
+                continue
 
             if player == "blue":
-                path_dist = aStarSearch.searchStart(game_state, [i, 0], [j, game_state.n - 1], player)
+                path_dist = aStarSearch.searchStart(game_state, [new_i, 0], [new_j, game_state.n - 1], player)
                 if path_dist < shortest_dist:
                     shortest_dist = path_dist
                     if shortest_dist == 0:
-                        print("zero cost path detected")
                         return _MIN
             else:
-                path_dist = aStarSearch.searchStart(game_state, [0, i], [game_state.n - 1, j], player)
+                path_dist = aStarSearch.searchStart(game_state, [0, new_i], [game_state.n - 1, new_j], player)
                 if path_dist < shortest_dist:
                     shortest_dist = path_dist
                     if shortest_dist == 0:
                         print("zero cost path detected")
                         return _MIN
     return shortest_dist
-
-
-
 
 
 def get_piece_square_dominance(player, game_state, piece_square_table: pieceSquareTable):
