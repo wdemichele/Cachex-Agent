@@ -205,24 +205,24 @@ def getShortestWin(game_state: board.Board, player: str, opposition: str, skipFa
 
             # check for available start state within breadth of skip factor
             new_i, new_j = i, j
-            for k in range(skipFactor):
+            for k in range(skipFactor - 1):
                 if game_state.__getitem__((new_i, 0)) == opposition:
                     new_i += 1
                     if new_i >= game_state.n:
                         break
-                    if k == skipFactor - 1:
-                        break
+                else:
+                    break
             if new_i >= game_state.n:
                 continue
 
             # check for available start state within breadth of skip factor
-            for k in range(skipFactor):
+            for k in range(skipFactor - 1):
                 if game_state.__getitem__((new_j, game_state.n - 1)) == opposition:
                     new_j += 1
                     if new_j >= game_state.n:
                         break
-                    if k == skipFactor - 1:
-                        break
+                else:
+                    break
             if new_j >= game_state.n:
                 continue
 
