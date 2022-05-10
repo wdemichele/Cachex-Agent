@@ -56,7 +56,7 @@ def evaluate(player: str, opposition: str, game_state: board, piece_square_table
     if _EVAL_TIMER.get_curr_turns() != n_turns:
         _EVAL_TIMER.new_move(n_turns)
 
-    w1, w2, w3, w4, w5 = 1, 0.8, 1.4, 0.92, 1.3
+    w1, w2, w3, w4, w5 = 1, 0.8, 1.4, 0.92, 0.4
 
     if game_state.n > 5:
         w5 = 0.42
@@ -109,7 +109,7 @@ def get_longest_connected_coord(player, opposition, game_state):
 def get_keyspot_dominance(player, opposition, game_state):
     player_score = 0
     opp_score = 0
-    for i in range(game_state.n, 2):
+    for i in range(game_state.n):
         for j in [0, game_state.n - 1]:
             if game_state.__getitem__((j, i)) == player:
                 if i == j:

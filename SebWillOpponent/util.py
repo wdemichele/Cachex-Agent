@@ -58,14 +58,14 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
             for i in range(curr_state.n):
                 if not curr_state.is_occupied((i, 0)):
                     return_moves.append((i, 0))
-                if not curr_state.is_occupied((i, n)):
-                    return_moves.append((i, n))
+                if not curr_state.is_occupied((i, n - 1)):
+                    return_moves.append((i, n - 1))
         else:
             for i in range(curr_state.n):
                 if not curr_state.is_occupied((0, i)):
                     return_moves.append((0, i))
-                if not curr_state.is_occupied((n, i)):
-                    return_moves.append((n, i))
+                if not curr_state.is_occupied((n - 1, i)):
+                    return_moves.append((n - 1, i))
 
     if len(return_moves) < (MOVE_MAX_LIMIT / 5):
         for move in _HEX_STEPS:
