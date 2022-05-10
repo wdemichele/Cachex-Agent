@@ -1,3 +1,5 @@
+import random
+
 import referee.board
 import copy
 
@@ -22,15 +24,7 @@ _ADD = lambda a, b: (a[0] + b[0], a[1] + b[1])
 
 
 def state_eval(player: str, opposition: str, game_state: referee.board):
-    f1 = get_longest_connected_coord(player, opposition, game_state)
-    f2 = get_token_numerical_supremacy(player, opposition, game_state)
-    f3 = get_potential_to_be_captured(player, opposition, game_state)
-    f4 = get_keyspot_dominance(player, opposition, game_state)
-    w1 = 1
-    w2 = 0.3
-    w3 = 0.2
-    w4 = 0.1
-    return w1 * f1 + w2 * f2 + w3 * f3 + w4 * f4
+    return random.randint(-5, 5)
 
 
 def get_longest_connected_coord(player, opposition, game_state):

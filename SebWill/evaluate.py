@@ -1,5 +1,5 @@
 from SebWill.structures import pieceSquareTable
-import referee.board
+from SebWill import board
 from SebWill import aStarSearch
 from SebWill import relevantMoves
 import copy
@@ -33,7 +33,7 @@ class EvalTimer:
 
 
 _SKIP_FACTOR = 3
-_TIMER_FACTOR = 1
+_TIMER_FACTOR = 2.9
 _MIN = -70
 _MAX = 70
 
@@ -107,31 +107,35 @@ def evaluate_reasonable_move(player: str, game_state):
     return best_move[1]
 
 
-def evaluate(player: str, opposition: str, game_state: referee.board, piece_square_table: pieceSquareTable,
+def evaluate(player: str, opposition: str, game_state: board, piece_square_table: pieceSquareTable,
              n_tokens, n_turns):
     # if new move, reset the move timer
     if _EVAL_TIMER.get_curr_turns() != n_turns:
         _EVAL_TIMER.new_move(n_turns)
 
-    w1, w2, w3, w4, w5 = 1, 0.8, 1.5, 0.92, 1.6
+    w1, w2, w3, w4, w5 = 1, 0.8, 1.4, 0.92, 1.3
 
     if game_state.n > 5:
         w5 = 0.42
 
-    f2 = get_longest_connected_coord(player, opposition, game_state)
     f3 = get_potential_to_be_captured(player, opposition, game_state)
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
     f5 = get_piece_square_dominace(player, game_state, piece_square_table)
 
-    if n_tokens < game_state.n * 2 - 2 or _EVAL_TIMER.get_turn_time() > game_state.n - _TIMER_FACTOR:
+    if _EVAL_TIMER.get_turn_time() > (1.4 * game_state.n) / _TIMER_FACTOR:
+        w3 = 1
+        return w3 * f3 + w4 * f4 + w5 * f5
+    elif n_tokens < game_state.n * 2 - 2 or _EVAL_TIMER.get_turn_time() > game_state.n / _TIMER_FACTOR:
         w2 = 1
+        f2 = get_longest_connected_coord(player, opposition, game_state)
         return w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
 
+    f2 = get_longest_connected_coord(player, opposition, game_state)
     f1 = get_shortest_win_path(game_state, player, opposition, game_state.n - 1)
     return f1 * w1 + w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
 
 
-def state_eval(player: str, opposition: str, game_state: referee.board, piece_square_table: pieceSquareTable, n_tokens):
+def state_eval(player: str, opposition: str, game_state: board, piece_square_table: pieceSquareTable, n_tokens):
     w1 = 1
     w2 = 0.8
     w3 = 0.4
@@ -242,11 +246,11 @@ def check_capture_in_one_move(coord, player, opposition, game_state):
     return ret_val
 
 
-def get_shortest_win_path(game_state: referee.board.Board, player: str, opposition: str, skip_factor):
+def get_shortest_win_path(game_state: board.Board, player: str, opposition: str, skip_factor):
     return getShortestWin(game_state, player, skip_factor) - getShortestWin(game_state, opposition, skip_factor)
 
 
-def getShortestWin(game_state: referee.board.Board, player: str, skipFactor):
+def getShortestWin(game_state: board.Board, player: str, skipFactor):
     shortestDist = _MAX
     for i in range(0, game_state.n, skipFactor):
         for j in range(0, game_state.n, skipFactor):

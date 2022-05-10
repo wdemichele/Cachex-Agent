@@ -1,7 +1,7 @@
 import random
 from SebWill.structures import pieceSquareTable
 
-import referee.board
+from SebWill import board
 import copy
 from SebWill import evaluate
 
@@ -34,13 +34,13 @@ _STEAL = ("STEAL",)
 _PLACE = ("PLACE",)
 
 
-def make_state_from_move(curr_state: referee.board, move, player):
+def make_state_from_move(curr_state: board, move, player):
     new_board = copy.deepcopy(curr_state)
     new_board.place(player, move)
     return new_board
 
 
-def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, blue_tokens, time_used):
+def get_reasonable_moves(curr_state: board, n_dots, player, red_tokens, blue_tokens, time_used):
     n = curr_state.n
 
     # Feasible to try perfect play (if less than forty percent of board has been placed on and board is not too big)
@@ -54,11 +54,16 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
         steps = _HALF_HEX_STEPS
 
     for move in steps:
-        for spot in red_tokens:
+        first_tokens = blue_tokens
+        second_tokens = red_tokens
+        if player == "blue":
+            first_tokens = red_tokens
+            second_tokens = blue_tokens
+        for spot in first_tokens:
             new_spot = tuple(map(lambda x, y: x + y, spot, move))
             if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
                 return_moves.append(new_spot)
-        for spot in blue_tokens:
+        for spot in second_tokens:
             new_spot = tuple(map(lambda x, y: x + y, spot, move))
             if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
                 return_moves.append(new_spot)
@@ -76,7 +81,7 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
     return return_moves
 
 
-def get_all_moves(curr_state: referee.board):
+def get_all_moves(curr_state: board):
     return_moves = []
     for i in range(curr_state.n):
         for j in range(curr_state.n):
@@ -123,7 +128,7 @@ def get_depth_limit(time_spent: float, board_size: int):
         return DEPTH_LIMIT - 3
 
 
-def eval_func(player: str, opposition: str, curr_state: referee.board, piece_square_table: pieceSquareTable,
+def eval_func(player: str, opposition: str, curr_state: board, piece_square_table: pieceSquareTable,
               n_tokens, n_turns):
     return evaluate.evaluate(player, opposition, curr_state, piece_square_table, n_tokens, n_turns)
 
