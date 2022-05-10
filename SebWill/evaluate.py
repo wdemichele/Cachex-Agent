@@ -59,17 +59,15 @@ def evaluate(player: str, opposition: str, game_state: board, piece_square_table
 
     w1, w2, w3, w4, w5 = 1, 0.8, 1.1, 0.92, 0.4
 
-    if game_state.n > 5:
-        w5 = 0.42
-
     f3 = get_potential_to_be_captured(player, opposition, game_state)
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
     f5 = get_piece_square_dominance(player, game_state, piece_square_table)
 
-    if _EVAL_TIMER.get_turn_time() > (2 * game_state.n) / _TIMER_FACTOR:
+    if _EVAL_TIMER.get_turn_time() > (1.4 * game_state.n) / _TIMER_FACTOR:
         w3 = 1
         return w3 * f3 + w4 * f4 + w5 * f5
-    elif n_tokens < game_state.n * 2 - 2 or _EVAL_TIMER.get_turn_time() > game_state.n / _TIMER_FACTOR:
+    # If less than a third of the game has been played or we're running low on time, dont use heavy factor
+    elif n_tokens < (game_state.n ** 2) / 3 or _EVAL_TIMER.get_turn_time() > game_state.n / _TIMER_FACTOR:
         w2 = 1
         f2 = get_longest_connected_coord(player, opposition, game_state)
         return w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
