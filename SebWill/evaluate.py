@@ -193,13 +193,28 @@ def check_capture_in_one_move(coord, player, opposition, game_state):
 
 
 def get_shortest_win_path(game_state: board.Board, player: str, opposition: str, skip_factor):
-    return -(getShortestWin(game_state, player, skip_factor) - getShortestWin(game_state, opposition, skip_factor))
+    return -(getShortestWin(game_state, player, opposition, skip_factor) - getShortestWin(game_state, opposition, player, skip_factor))
 
 
-def getShortestWin(game_state: board.Board, player: str, skipFactor):
+def getShortestWin(game_state: board.Board, player: str, opposition: str, skipFactor):
     shortest_dist = _MAX
-    for i in range(0, game_state.n, skipFactor):
-        for j in range(0, game_state.n, skipFactor):
+    for i in range(0, game_state.n-1, skipFactor):        
+        for j in range(0, game_state.n-1, skipFactor):
+
+            #check for available start state within breadth of skip factor
+            for k in range(skipFactor):
+                if game_state.__getitem__((i, 0)) == opposition:
+                    i+= 1
+                    if k == skipFactor-1:
+                        break
+
+            #check for available start state within breadth of skip factor
+            for k in range(skipFactor):
+                if game_state.__getitem__((j, game_state.n - 1)) == opposition:
+                    j+= 1
+                    if k == skipFactor-1:
+                        continue
+
             if player == "blue":
                 path_dist = aStarSearch.searchStart(game_state, [i, 0], [j, game_state.n - 1], player)
                 if path_dist < shortest_dist:
