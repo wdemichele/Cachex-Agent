@@ -24,15 +24,16 @@ class Player:
         else:
             self.opposition = "blue"
 
-        self.board = util.referee.board.Board(n)
+        self.board = util.board.Board(n)
         self.n_tokens = 0
+        self.n_turns = 0
         self.opp_tokens = []
         self.player_tokens = []
         self.corners = [(0, 0), (0, n - 1), (n - 1, 0), (n - 1, n - 1)]
         self.token_to_build_on = None
         self.trans_table = dict()
         self.timer = timer.Timer()
-        self.pieceSquareTable = structures.pieceSquareTable(n)
+        self.piece_square_table = structures.pieceSquareTable(n)
 
     def action(self):
         """
@@ -55,6 +56,7 @@ class Player:
         the same as what your player returned from the action method
         above. However, the referee has validated it at this point.
         """
+        self.n_turns += 1
         if action[0] == "STEAL":
             self.board.swap()
             if self.player == "blue":
@@ -89,25 +91,29 @@ class Player:
                     if not self.board.is_occupied(corner):
                         self.token_to_build_on = corner
                         return self._PLACE + corner
+
         # Small board, go straight to minimax
         if self.board.n < 6:
-            # print(self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX))
             move = self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
             if move is None:
                 print("Movefinding error")
                 return self.fallback_strategy()
             return self._PLACE + move
+
+        # Enough moves now minimax is feasible
         if self.n_tokens >= (self.board.n * 1.5):
             move = self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
             if move is None:
                 print("Movefinding error")
                 return self.fallback_strategy()
             return self._PLACE + move
+
         # Start with a very defensive outlook, 4 in 5 chance of going for block over build
         if self.n_tokens <= self.board.n / 2:
             if randint(0, 4) % 5 == 0:
                 return self.build()
             return self.block()
+
         # If past start, but board still to big to go for full minimax, 1 in 3 chance of build over block
         if randint(0, 2) % 3 == 0:
             return self.build()
@@ -182,11 +188,11 @@ class Player:
             if self.board.inside_bounds((x, y)) and not self.board.is_occupied((x, y)):
                 return self._PLACE + (x, y)
 
-    def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta, is_quiescent=True) -> tuple((int, (int, int))):
+    def alpha_beta_minimax(self, depth: int, game_state: util.board.Board, is_maximizing: bool, alpha: int, beta: int, is_quiescent=True):
 
-        if depth >= util.get_depth_limit(self.timer.count, self.board.n, is_quiescent):
-            # return random.randint(-5, 5), None
-            return util.eval_func(self.player, self.opposition, game_state, self.pieceSquareTable), (0, 0)
+        if depth == util.get_depth_limit(self.timer.count, self.board.n):
+            return util.eval_func(self.player, self.opposition, game_state, self.piece_square_table,
+                                  self.n_tokens, self.n_turns), (0, 0)
 
         if is_maximizing:
             # set to number below minimum of eval func
@@ -195,16 +201,16 @@ class Player:
             (reasonableMoves, is_quiescent) = util.get_reasonable_moves(self.board, self.n_tokens, self.player,
                                                   self.player_tokens, self.opp_tokens, self.timer.get_count())
             for move in reasonableMoves:
-
+                # if depth is even, add a player move, else add an opponent move
                 if depth % 2 == 1:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)
                 else:
                     move_state = util.make_state_from_move(game_state, move, self.player)
-                if self.trans_table.get(move_state.digest()):
-                    value = self.trans_table.get(move_state.digest())
+                if self.trans_table.get(move_state.hash(depth)):
+                    value = self.trans_table.get(move_state.hash(depth))
                 else:
-                    self.trans_table[move_state.digest()] = value = \
-                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta, is_quiescent)[0]
+                    self.trans_table[move_state.hash(depth)] = value = \
+                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta,is_quiescent)[0]
 
                 if value >= curr_max:
                     curr_max = value
@@ -229,11 +235,10 @@ class Player:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)
                 else:
                     move_state = util.make_state_from_move(game_state, move, self.player)
-                if self.trans_table.get(move_state.digest()):
-                    print("Duplicate state detected")
-                    value = self.trans_table.get(move_state.digest())
+                if self.trans_table.get(move_state.hash(depth)):
+                    value = self.trans_table.get(move_state.hash(depth))
                 else:
-                    self.trans_table[move_state.digest()] = value = \
+                    self.trans_table[move_state.hash(depth)] = value = \
                         self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta, is_quiescent)[0]
 
                 if value <= curr_min:

@@ -1,7 +1,7 @@
 import random
 from SebWill.structures import pieceSquareTable
 
-import referee.board
+from SebWill import board
 import copy
 from SebWill import evaluate
 from SebWill import capturable
@@ -16,10 +16,10 @@ MINIMAX_MAX = 70
 DEPTH_LIMIT = 4
 
 # MOVE_MAX_LIMIT: how many moves we are willing to consider at any given layer of minimax
-MOVE_MAX_LIMIT = 55
+MOVE_MAX_LIMIT = 50
 
 # FULL_SEARCH_MAX: the maximum number we all for a full search tree
-FULL_SEARCH_MAX = 29
+FULL_SEARCH_MAX = 16
 
 # MOVE_MIN_LIMIT: the min limit representing when we have not considered enough moves to garner 'good' play
 MOVE_MIN_LIMIT_FACTOR = 1.5
@@ -35,17 +35,18 @@ _STEAL = ("STEAL",)
 _PLACE = ("PLACE",)
 
 
-def make_state_from_move(curr_state: referee.board, move, player):
+def make_state_from_move(curr_state: board.Board, move: tuple(int, int), player: str):
     new_board = copy.deepcopy(curr_state)
     new_board.place(player, move)
     return new_board
 
 
-def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, blue_tokens, time_used):
+def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_tokens: list,
+                         blue_tokens: list, time_used: float):
     n = curr_state.n
 
     # Feasible to try perfect play (if less than forty percent of board has been placed on and board is not too big)
-    if n_dots <= (0.4 * n ** 2) and n ** 2 - n_dots <= FULL_SEARCH_MAX:
+    if n_dots <= (0.4 * n ** 2) and n ** 2 <= FULL_SEARCH_MAX:
         return get_all_moves(curr_state)
 
     return_moves = []
@@ -82,11 +83,16 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
         steps = _HALF_HEX_STEPS
 
     for move in steps:
-        for spot in red_tokens:
+        first_tokens = blue_tokens
+        second_tokens = red_tokens
+        if player == "blue":
+            first_tokens = red_tokens
+            second_tokens = blue_tokens
+        for spot in first_tokens:
             new_spot = tuple(map(lambda x, y: x + y, spot, move))
             if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
                 return_moves.append(new_spot)
-        for spot in blue_tokens:
+        for spot in second_tokens:
             new_spot = tuple(map(lambda x, y: x + y, spot, move))
             if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
                 return_moves.append(new_spot)
@@ -104,7 +110,7 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
     return return_moves
 
 
-def get_all_moves(curr_state: referee.board):
+def get_all_moves(curr_state: board.Board):
     return_moves = []
     for i in range(curr_state.n):
         for j in range(curr_state.n):
@@ -130,10 +136,10 @@ def get_up_hex_steps():
     return _UP_HEX_STEPS
 
 
-def get_colour_pieces(board, colour):
+def get_colour_pieces(state: board.Board, colour):
     colours = []
-    for i in reversed(range(board.n)):
-        for j in range(board.n):
+    for i in reversed(range(state.n)):
+        for j in range(state.n):
             if board.__getitem__((i, j)) == colour:
                 colours.append((i, j))
     return colours
@@ -151,12 +157,6 @@ def get_depth_limit(time_spent: float, board_size: int, is_quiescent: bool):
     else:
         return DEPTH_LIMIT - 3
 
-
-def eval_func(player: str, opposition: str, curr_state: referee.board, pieceSquareTable: pieceSquareTable):
-    # return evaluate.evaluate(player, curr_state)
-    # return random.randint(-5, 5)
-    return evaluate.state_eval(player, opposition, curr_state, pieceSquareTable)
-
 def getColourPieces(board, colour):
     colours = []
     for i in reversed(range(board.n)):
@@ -164,3 +164,7 @@ def getColourPieces(board, colour):
             if board.__getitem__((i, j)) == colour:
                 colours.append((i, j))
     return colours
+def eval_func(player: str, opposition: str, curr_state: board, piece_square_table: pieceSquareTable,
+              n_tokens, n_turns):
+    return evaluate.evaluate(player, opposition, curr_state, piece_square_table, n_tokens, n_turns)
+
