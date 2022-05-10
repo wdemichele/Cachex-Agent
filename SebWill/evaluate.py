@@ -65,7 +65,7 @@ def evaluate(player: str, opposition: str, game_state: board, piece_square_table
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
     f5 = get_piece_square_dominance(player, game_state, piece_square_table)
 
-    if _EVAL_TIMER.get_turn_time() > (1.4 * game_state.n) / _TIMER_FACTOR:
+    if _EVAL_TIMER.get_turn_time() > (2 * game_state.n) / _TIMER_FACTOR:
         w3 = 1
         return w3 * f3 + w4 * f4 + w5 * f5
     elif n_tokens < game_state.n * 2 - 2 or _EVAL_TIMER.get_turn_time() > game_state.n / _TIMER_FACTOR:
@@ -204,10 +204,16 @@ def getShortestWin(game_state: board.Board, player: str, skipFactor):
                 path_dist = aStarSearch.searchStart(game_state, [i, 0], [j, game_state.n - 1], player)
                 if path_dist < shortest_dist:
                     shortest_dist = path_dist
+                    if shortest_dist == 0:
+                        print("zero cost path detected")
+                        return _MIN
             else:
                 path_dist = aStarSearch.searchStart(game_state, [0, i], [game_state.n - 1, j], player)
                 if path_dist < shortest_dist:
                     shortest_dist = path_dist
+                    if shortest_dist == 0:
+                        print("zero cost path detected")
+                        return _MIN
     return shortest_dist
 
 

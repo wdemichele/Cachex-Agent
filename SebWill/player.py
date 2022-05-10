@@ -188,7 +188,8 @@ class Player:
             if self.board.inside_bounds((x, y)) and not self.board.is_occupied((x, y)):
                 return self._PLACE + (x, y)
 
-    def alpha_beta_minimax(self, depth: int, game_state: util.board.Board, is_maximizing: bool, alpha: int, beta: int, is_quiescent=True):
+    def alpha_beta_minimax(self, depth: int, game_state: util.board.Board, is_maximizing: bool, alpha: int, beta: int,
+                           is_quiescent=True):
 
         if depth == util.get_depth_limit(self.timer.count, self.board.n, is_quiescent):
             return util.eval_func(self.player, self.opposition, game_state, self.piece_square_table,
@@ -199,7 +200,8 @@ class Player:
             curr_max = util.MINIMAX_MIN
             curr_best_move = None
             (reasonableMoves, is_quiescent) = util.get_reasonable_moves(self.board, self.n_tokens, self.player,
-                                                  self.player_tokens, self.opp_tokens, self.timer.get_count())
+                                                                        self.player_tokens, self.opp_tokens,
+                                                                        self.timer.get_count())
             for move in reasonableMoves:
                 # if depth is even, add a player move, else add an opponent move
                 if depth % 2 == 1:
@@ -210,7 +212,7 @@ class Player:
                     value = self.trans_table.get(move_state.hash(depth))
                 else:
                     self.trans_table[move_state.hash(depth)] = value = \
-                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta,is_quiescent)[0]
+                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta, is_quiescent)[0]
 
                 if value >= curr_max:
                     curr_max = value
@@ -228,7 +230,8 @@ class Player:
             curr_best_move = None
             # Generate children
             (reasonableMoves, is_quiescent) = util.get_reasonable_moves(self.board, self.n_tokens, self.player,
-                                                  self.player_tokens, self.opp_tokens, self.timer.get_count())
+                                                                        self.player_tokens, self.opp_tokens,
+                                                                        self.timer.get_count())
             for move in reasonableMoves:
 
                 if depth % 2 == 1:

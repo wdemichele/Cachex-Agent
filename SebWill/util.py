@@ -70,19 +70,20 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
         return_moves.extend(captures)
         forks = capturable.is_forkable(curr_state, location[0], location[1], opposition)
         return_moves.extend(forks)
-       
 
     return_moves = list(set(return_moves))
 
     if len(return_moves) >= 0:
         return (return_moves, False)
-
+    
     steps = _HEX_STEPS
+    n_directions_to_search = 4
 
     if time_used > (n ** 2) * 0.4 or n >= 10:
-        steps = _HALF_HEX_STEPS
+        n_directions_to_search = 2
 
-    for move in steps:
+    for i in range(n_directions_to_search):
+        move = steps[i]
         first_tokens = blue_tokens
         second_tokens = red_tokens
         if player == "blue":
@@ -97,7 +98,7 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
             if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
                 return_moves.append(new_spot)
         if len(return_moves) > MOVE_MAX_LIMIT:
-            return (return_moves, True)
+            return list(set(return_moves)), True
 
     # if amount of moves not ideal for good play
     if len(return_moves) < (MOVE_MIN_LIMIT_FACTOR * n):
@@ -107,7 +108,7 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
             if curr_state.inside_bounds((x, y)) and not curr_state.is_occupied((x, y)):
                 if (x, y) not in return_moves:
                     return_moves.append((x, y))
-    return return_moves
+    return list(set(return_moves)), True
 
 
 def get_all_moves(curr_state: board.Board):
@@ -157,6 +158,7 @@ def get_depth_limit(time_spent: float, board_size: int, is_quiescent=True):
     else:
         return DEPTH_LIMIT - 3
 
+
 def getColourPieces(board, colour):
     colours = []
     for i in reversed(range(board.n)):
@@ -164,8 +166,8 @@ def getColourPieces(board, colour):
             if board.__getitem__((i, j)) == colour:
                 colours.append((i, j))
     return colours
-    
+
+
 def eval_func(player: str, opposition: str, curr_state: board, piece_square_table: pieceSquareTable,
               n_tokens, n_turns):
     return evaluate.evaluate(player, opposition, curr_state, piece_square_table, n_tokens, n_turns)
-
