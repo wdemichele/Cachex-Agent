@@ -25,13 +25,14 @@ class Player:
 
         self.board = util.referee.board.Board(n)
         self.n_tokens = 0
+        self.n_turns = 0
         self.opp_tokens = []
         self.player_tokens = []
         self.corners = [(0, 0), (0, n - 1), (n - 1, 0), (n - 1, n - 1)]
         self.token_to_build_on = None
         self.trans_table = dict()
         self.timer = timer.Timer()
-        self.pieceSquareTable = structures.pieceSquareTable(n)
+        self.piece_square_table = structures.pieceSquareTable(n)
 
     def action(self):
         """
@@ -54,6 +55,7 @@ class Player:
         the same as what your player returned from the action method
         above. However, the referee has validated it at this point.
         """
+        self.n_turns += 1
         if action[0] == "STEAL":
             self.board.swap()
             if self.player == "blue":
@@ -90,7 +92,6 @@ class Player:
                         return self._PLACE + corner
         # Small board, go straight to minimax
         if self.board.n < 6:
-            # print(self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX))
             move = self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
             if move is None:
                 print("Movefinding error")
@@ -185,7 +186,8 @@ class Player:
 
         if depth == util.get_depth_limit(self.timer.count, self.board.n):
             # return random.randint(-5, 5), None
-            return util.eval_func(self.player, self.opposition, game_state, self.pieceSquareTable), (0, 0)
+            return util.eval_func(self.player, self.opposition, game_state, self.piece_square_table,
+                                  self.n_tokens, self.n_turns), (0, 0)
 
         if is_maximizing:
             # set to number below minimum of eval func

@@ -26,3 +26,17 @@ class Timer:
 
     def get_count(self):
         return self.count
+
+    def reset_restart(self):
+        self.count = 0
+        self.start_time = time.perf_counter()
+
+    def reset(self):
+        self.count = 0
+        self.start_time = None
+
+    def check_time_since_start(self):
+        if self.start_time is None:
+            raise TimerError("Timer never started, incorrect use of timer")
+        time_elapsed = time.perf_counter() - self.start_time
+        return time_elapsed

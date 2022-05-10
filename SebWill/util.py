@@ -15,10 +15,10 @@ MINIMAX_MAX = 70
 DEPTH_LIMIT = 4
 
 # MOVE_MAX_LIMIT: how many moves we are willing to consider at any given layer of minimax
-MOVE_MAX_LIMIT = 55
+MOVE_MAX_LIMIT = 50
 
 # FULL_SEARCH_MAX: the maximum number we all for a full search tree
-FULL_SEARCH_MAX = 29
+FULL_SEARCH_MAX = 16
 
 # MOVE_MIN_LIMIT: the min limit representing when we have not considered enough moves to garner 'good' play
 MOVE_MIN_LIMIT_FACTOR = 1.5
@@ -44,7 +44,7 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
     n = curr_state.n
 
     # Feasible to try perfect play (if less than forty percent of board has been placed on and board is not too big)
-    if n_dots <= (0.4 * n ** 2) and n ** 2 - n_dots <= FULL_SEARCH_MAX:
+    if n_dots <= (0.4 * n ** 2) and n ** 2 <= FULL_SEARCH_MAX:
         return get_all_moves(curr_state)
 
     return_moves = []
@@ -123,7 +123,7 @@ def get_depth_limit(time_spent: float, board_size: int):
         return DEPTH_LIMIT - 3
 
 
-def eval_func(player: str, opposition: str, curr_state: referee.board, pieceSquareTable: pieceSquareTable):
-    # return evaluate.evaluate(player, curr_state)
-    # return random.randint(-5, 5)
-    return evaluate.state_eval(player, opposition, curr_state, pieceSquareTable)
+def eval_func(player: str, opposition: str, curr_state: referee.board, piece_square_table: pieceSquareTable,
+              n_tokens, n_turns):
+    return evaluate.evaluate(player, opposition, curr_state, piece_square_table, n_tokens, n_turns)
+
