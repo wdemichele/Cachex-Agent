@@ -207,12 +207,15 @@ def get_token_numerical_supremacy(player, opposition, game_state):
 
 def get_potential_to_be_captured(player, opposition, game_state):
     player_gets_capped_potential = 0
+    opposition_gets_capped_potential = 0
 
     for i in range(game_state.n):
         for j in range(game_state.n):
             if game_state.__getitem__((i, j)) == player:
-                player_gets_capped_potential -= check_capture_in_one_move((i, j), player, opposition, game_state)
-    return player_gets_capped_potential
+                player_gets_capped_potential += check_capture_in_one_move((i, j), player, opposition, game_state)
+            elif game_state.__getitem__((i, j)) == opposition:
+                opposition_gets_capped_potential += check_capture_in_one_move((i, j), opposition, player, game_state)
+    return opposition_gets_capped_potential - player_gets_capped_potential
 
 
 def check_capture_in_one_move(coord, player, opposition, game_state):
