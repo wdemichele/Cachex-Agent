@@ -35,7 +35,7 @@ _STEAL = ("STEAL",)
 _PLACE = ("PLACE",)
 
 
-def make_state_from_move(curr_state: board.Board, move: tuple(int, int), player: str):
+def make_state_from_move(curr_state: board.Board, move: tuple((int, int)), player: str):
     new_board = copy.deepcopy(curr_state)
     new_board.place(player, move)
     return new_board
@@ -145,7 +145,7 @@ def get_colour_pieces(state: board.Board, colour):
     return colours
 
 
-def get_depth_limit(time_spent: float, board_size: int, is_quiescent: bool):
+def get_depth_limit(time_spent: float, board_size: int, is_quiescent=True):
     # if lots of time (90% of time limit or greater) and smaller board
     quiescent = 0 if is_quiescent else 1
     if time_spent < (board_size ** 2) / 15.0 and board_size < 4:
@@ -164,6 +164,7 @@ def getColourPieces(board, colour):
             if board.__getitem__((i, j)) == colour:
                 colours.append((i, j))
     return colours
+    
 def eval_func(player: str, opposition: str, curr_state: board, piece_square_table: pieceSquareTable,
               n_tokens, n_turns):
     return evaluate.evaluate(player, opposition, curr_state, piece_square_table, n_tokens, n_turns)

@@ -190,7 +190,7 @@ class Player:
 
     def alpha_beta_minimax(self, depth: int, game_state: util.board.Board, is_maximizing: bool, alpha: int, beta: int, is_quiescent=True):
 
-        if depth == util.get_depth_limit(self.timer.count, self.board.n):
+        if depth == util.get_depth_limit(self.timer.count, self.board.n, is_quiescent):
             return util.eval_func(self.player, self.opposition, game_state, self.piece_square_table,
                                   self.n_tokens, self.n_turns), (0, 0)
 

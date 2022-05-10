@@ -32,7 +32,6 @@ class EvalTimer:
         return self.timer.get_count()
 
 
-_SKIP_FACTOR = 3
 _TIMER_FACTOR = 2.9
 _MIN = -70
 _MAX = 70
