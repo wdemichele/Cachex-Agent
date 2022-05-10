@@ -120,7 +120,7 @@ def evaluate(player: str, opposition: str, game_state: board, piece_square_table
 
     f3 = get_potential_to_be_captured(player, opposition, game_state)
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
-    f5 = get_piece_square_dominace(player, game_state, piece_square_table)
+    f5 = get_piece_square_dominance(player, game_state, piece_square_table)
 
     if _EVAL_TIMER.get_turn_time() > (1.4 * game_state.n) / _TIMER_FACTOR:
         w3 = 1
@@ -247,22 +247,22 @@ def check_capture_in_one_move(coord, player, opposition, game_state):
 
 
 def get_shortest_win_path(game_state: board.Board, player: str, opposition: str, skip_factor):
-    return getShortestWin(game_state, player, skip_factor) - getShortestWin(game_state, opposition, skip_factor)
+    return -(getShortestWin(game_state, player, skip_factor) - getShortestWin(game_state, opposition, skip_factor))
 
 
 def getShortestWin(game_state: board.Board, player: str, skipFactor):
-    shortestDist = _MAX
+    shortest_dist = _MAX
     for i in range(0, game_state.n, skipFactor):
         for j in range(0, game_state.n, skipFactor):
             if player == "blue":
-                pathDist = aStarSearch.searchStart(game_state, [i, 0], [j, game_state.n - 1], player)
-                if pathDist < shortestDist:
-                    shortestDist = pathDist
+                path_dist = aStarSearch.searchStart(game_state, [i, 0], [j, game_state.n - 1], player)
+                if path_dist < shortest_dist:
+                    shortest_dist = path_dist
             else:
-                pathDist = aStarSearch.searchStart(game_state, [0, i], [game_state.n - 1, j], player)
-                if pathDist < shortestDist:
-                    shortestDist = pathDist
-    return shortestDist
+                path_dist = aStarSearch.searchStart(game_state, [0, i], [game_state.n - 1, j], player)
+                if path_dist < shortest_dist:
+                    shortest_dist = path_dist
+    return shortest_dist
 
 
 def getColourPieces(board, colour):
@@ -274,7 +274,7 @@ def getColourPieces(board, colour):
     return colours
 
 
-def get_piece_square_dominace(player, game_state, piece_square_table: pieceSquareTable):
+def get_piece_square_dominance(player, game_state, piece_square_table: pieceSquareTable):
     # edge and corner and central pieces are weighted as more advantageous
     player_token_location_value = 0
     opp_token_location_value = 0

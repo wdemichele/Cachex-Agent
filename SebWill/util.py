@@ -34,13 +34,14 @@ _STEAL = ("STEAL",)
 _PLACE = ("PLACE",)
 
 
-def make_state_from_move(curr_state: board, move, player):
+def make_state_from_move(curr_state: board.Board, move: (int, int), player: str):
     new_board = copy.deepcopy(curr_state)
     new_board.place(player, move)
     return new_board
 
 
-def get_reasonable_moves(curr_state: board, n_dots, player, red_tokens, blue_tokens, time_used):
+def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_tokens: list,
+                         blue_tokens: list, time_used: float):
     n = curr_state.n
 
     # Feasible to try perfect play (if less than forty percent of board has been placed on and board is not too big)
@@ -81,7 +82,7 @@ def get_reasonable_moves(curr_state: board, n_dots, player, red_tokens, blue_tok
     return return_moves
 
 
-def get_all_moves(curr_state: board):
+def get_all_moves(curr_state: board.Board):
     return_moves = []
     for i in range(curr_state.n):
         for j in range(curr_state.n):
@@ -107,10 +108,10 @@ def get_up_hex_steps():
     return _UP_HEX_STEPS
 
 
-def get_colour_pieces(board, colour):
+def get_colour_pieces(state: board.Board, colour):
     colours = []
-    for i in reversed(range(board.n)):
-        for j in range(board.n):
+    for i in reversed(range(state.n)):
+        for j in range(state.n):
             if board.__getitem__((i, j)) == colour:
                 colours.append((i, j))
     return colours

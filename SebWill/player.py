@@ -199,6 +199,7 @@ class Player:
             curr_best_move = None
             for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
                                                   self.player_tokens, self.opp_tokens, self.timer.get_count()):
+                # if depth is even, add a player move, else add an opponent move
                 if depth % 2 == 1:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)
                 else:
@@ -231,11 +232,10 @@ class Player:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)
                 else:
                     move_state = util.make_state_from_move(game_state, move, self.player)
-                if self.trans_table.get(move_state.digest()):
-                    print("Duplicate state detected")
-                    value = self.trans_table.get(move_state.digest())
+                if self.trans_table.get(move_state.hash(depth)):
+                    value = self.trans_table.get(move_state.hash(depth))
                 else:
-                    self.trans_table[move_state.digest()] = value = \
+                    self.trans_table[move_state.hash(depth)] = value = \
                         self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
 
                 if value <= curr_min:

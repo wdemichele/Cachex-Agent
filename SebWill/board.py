@@ -50,7 +50,7 @@ class Board:
         return self._data.tobytes()
 
     def hash(self, depth):
-        return (self.digest(), depth)
+        return self.digest(), depth
 
     def swap(self):
         """
@@ -137,3 +137,5 @@ class Board:
         """
         return [_ADD(coord, step) for step in _HEX_STEPS \
                 if self.inside_bounds(_ADD(coord, step))]
+
+
