@@ -1,3 +1,4 @@
+from typing import Tuple
 from SebWill import structures, timer
 from SebWill import util
 from random import randint
@@ -181,9 +182,9 @@ class Player:
             if self.board.inside_bounds((x, y)) and not self.board.is_occupied((x, y)):
                 return self._PLACE + (x, y)
 
-    def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta) -> (int, (int, int)):
+    def alpha_beta_minimax(self, depth, game_state, is_maximizing, alpha, beta, is_quiescent=True) -> tuple((int, (int, int))):
 
-        if depth == util.get_depth_limit(self.timer.count, self.board.n):
+        if depth >= util.get_depth_limit(self.timer.count, self.board.n, is_quiescent):
             # return random.randint(-5, 5), None
             return util.eval_func(self.player, self.opposition, game_state, self.pieceSquareTable), (0, 0)
 
@@ -191,8 +192,9 @@ class Player:
             # set to number below minimum of eval func
             curr_max = util.MINIMAX_MIN
             curr_best_move = None
-            for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
-                                                  self.player_tokens, self.opp_tokens, self.timer.get_count()):
+            (reasonableMoves, is_quiescent) = util.get_reasonable_moves(self.board, self.n_tokens, self.player,
+                                                  self.player_tokens, self.opp_tokens, self.timer.get_count())
+            for move in reasonableMoves:
 
                 if depth % 2 == 1:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)
@@ -202,7 +204,7 @@ class Player:
                     value = self.trans_table.get(move_state.digest())
                 else:
                     self.trans_table[move_state.digest()] = value = \
-                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
+                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta, is_quiescent)[0]
 
                 if value >= curr_max:
                     curr_max = value
@@ -219,8 +221,9 @@ class Player:
             curr_min = util.MINIMAX_MAX
             curr_best_move = None
             # Generate children
-            for move in util.get_reasonable_moves(self.board, self.n_tokens, self.player,
-                                                  self.player_tokens, self.opp_tokens, self.timer.get_count()):
+            (reasonableMoves, is_quiescent) = util.get_reasonable_moves(self.board, self.n_tokens, self.player,
+                                                  self.player_tokens, self.opp_tokens, self.timer.get_count())
+            for move in reasonableMoves:
 
                 if depth % 2 == 1:
                     move_state = util.make_state_from_move(game_state, move, self.opposition)
@@ -231,7 +234,7 @@ class Player:
                     value = self.trans_table.get(move_state.digest())
                 else:
                     self.trans_table[move_state.digest()] = value = \
-                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta)[0]
+                        self.alpha_beta_minimax(depth + 1, move_state, True, alpha, beta, is_quiescent)[0]
 
                 if value <= curr_min:
                     curr_min = value

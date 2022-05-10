@@ -4,7 +4,7 @@ from SebWill.structures import pieceSquareTable
 import referee.board
 import copy
 from SebWill import evaluate
-from SebWill import relevantMoves
+from SebWill import capturable
 
 # MINIMAX_MIN needs to be lower than anything that eval could return
 MINIMAX_MIN = -70
@@ -57,24 +57,24 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
     # look for capture and fork opportunities against opposition
     oppOccupy = getColourPieces(curr_state, opposition)
     for location in oppOccupy:
-        captures = relevantMoves.is_captureable(curr_state, location[0], location[1], curr_state)
+        captures = capturable.is_captureable(curr_state, location[0], location[1], curr_state)
         return_moves.extend(captures)
-        forks = relevantMoves.is_forkable(curr_state, location[0], location[1], player)
+        forks = capturable.is_forkable(curr_state, location[0], location[1], player)
         return_moves.extend(forks)
 
     # prevent capture and fork opportunities against player
     playerOccupy = getColourPieces(curr_state, player)
     for location in playerOccupy:
-        captures = relevantMoves.is_captureable(curr_state, location[0], location[1], opposition)
+        captures = capturable.is_captureable(curr_state, location[0], location[1], opposition)
         return_moves.extend(captures)
-        forks = relevantMoves.is_forkable(curr_state, location[0], location[1], opposition)
+        forks = capturable.is_forkable(curr_state, location[0], location[1], opposition)
         return_moves.extend(forks)
        
 
     return_moves = list(set(return_moves))
 
     if len(return_moves) >= 0:
-        return return_moves
+        return (return_moves, False)
 
     steps = _HEX_STEPS
 
@@ -91,7 +91,7 @@ def get_reasonable_moves(curr_state: referee.board, n_dots, player, red_tokens, 
             if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
                 return_moves.append(new_spot)
         if len(return_moves) > MOVE_MAX_LIMIT:
-            return return_moves
+            return (return_moves, True)
 
     # if amount of moves not ideal for good play
     if len(return_moves) < (MOVE_MIN_LIMIT_FACTOR * n):
@@ -139,12 +139,13 @@ def get_colour_pieces(board, colour):
     return colours
 
 
-def get_depth_limit(time_spent: float, board_size: int):
+def get_depth_limit(time_spent: float, board_size: int, is_quiescent: bool):
     # if lots of time (90% of time limit or greater) and smaller board
+    quiescent = 0 if is_quiescent else 1
     if time_spent < (board_size ** 2) / 15.0 and board_size < 4:
         return DEPTH_LIMIT
     elif time_spent < (board_size ** 2) * 0.70:
-        return DEPTH_LIMIT - 1
+        return DEPTH_LIMIT - 1 + quiescent
     elif time_spent < (board_size ** 2) * 0.95:
         return DEPTH_LIMIT - 2
     else:

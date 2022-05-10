@@ -1,7 +1,7 @@
 from SebWill.structures import pieceSquareTable
 import referee.board
 from SebWill import aStarSearch
-from SebWill import relevantMoves
+from SebWill import capturable
 import copy
 
 _SKIP_FACTOR = 3

@@ -170,32 +170,3 @@ def is_forkable(Board,i,j,player):
             forkMove.append(right)
     
     return forkMove
-
-
-def twoColumnFork(Board,i,j,n,player):
-    left, right, topLeft, topRight, bottomLeft, bottomRight = (i,j-1), (i,j+1), (i+1,j-1), (i+1,j), (i-1,j), (i-1,j+1)
-    opp = "r"
-    if (player == "r"):
-        opp = "b"
-    if Board.__getitem__((i,j)) == None:
-        if (i>1 and j>0 and i < (n-2) and j < (n-1)):
-            # two column fork
-            #     . . . . . .
-            #    . o r . . .
-            #   . . r b r .
-            #  . . . . r o
-            # . . . . . .
-            if (Board.__getitem__(bottomLeft) == opp and Board.__getitem__(bottomRight) == opp and Board.__getitem__(topRight) == opp and Board.__getitem__(topLeft) == opp):
-                if Board.__getitem__((i-2,j+1)) == None and Board.__getitem__((i+2,j-1)) == None:
-                    return (i,j)
-        if (i>0 and j>1 and i < (n-1) and j < (n-2)):
-            # two row fork
-            #      . . . . . .
-            #     . . o . . .
-            #    . . r r . .
-            #   . . . b . .
-            #  . . . r r .
-            # . . . . o .
-            if (Board.__getitem__(right) == opp and Board.__getitem__(bottomRight) == opp and Board.__getitem__(left) == opp and Board.__getitem__(topLeft) == opp):
-                if Board.__getitem__((i-1,j+2)) == None and Board.__getitem__((i+1,j-2)) == None:
-                    return (i,j)
