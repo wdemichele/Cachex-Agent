@@ -89,7 +89,6 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
     else:
         defensive_moves = get_defensive_moves(curr_state, red_tokens, n_directions_to_search)
 
-    print("Adding defense")
     return_moves.update(defensive_moves)
 
     # If still too small, add some offensive moves
@@ -100,7 +99,6 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
         offensive_moves = get_defensive_moves(curr_state, red_tokens, n_directions_to_search)
     else:
         offensive_moves = get_defensive_moves(curr_state, blue_tokens, n_directions_to_search)
-    print("adding offense")
     return_moves.update(offensive_moves)
 
     if len(return_moves) < curr_state.n:
