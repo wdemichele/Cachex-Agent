@@ -33,7 +33,7 @@ class EvalTimer:
 
 
 _SKIP_FACTOR = 2
-_TIMER_FACTOR = 2.9
+_TIMER_FACTOR = 3.0
 _MIN = -70
 _MAX = 70
 
@@ -57,7 +57,7 @@ def evaluate(player: str, opposition: str, game_state: board, piece_square_table
     if _EVAL_TIMER.get_curr_turns() != n_turns:
         _EVAL_TIMER.new_move(n_turns)
 
-    w1, w2, w3, w4, w5 = 1, 0.8, 1.1, 0.92, 0.4
+    w1, w2, w3, w4, w5 = 1.2, 0.8, 1.3, 0.7, 0.3
 
     f3 = get_potential_to_be_captured(player, opposition, game_state)
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
@@ -67,7 +67,7 @@ def evaluate(player: str, opposition: str, game_state: board, piece_square_table
         w3 = 1
         return w3 * f3 + w4 * f4 + w5 * f5
     # If less than a third of the game has been played or we're running low on time, dont use heavy factor
-    elif n_tokens < (game_state.n ** 2) / 3 or _EVAL_TIMER.get_turn_time() > game_state.n / _TIMER_FACTOR:
+    elif n_tokens < (game_state.n ** 2) / 4 or _EVAL_TIMER.get_turn_time() > game_state.n / _TIMER_FACTOR:
         w2 = 1
         f2 = get_longest_connected_coord(player, opposition, game_state)
         return w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
