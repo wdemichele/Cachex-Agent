@@ -49,7 +49,7 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
     n = curr_state.n
 
     # Feasible to try perfect play (if less than forty percent of board has been placed on and board is not too big)
-    if n ** 2 - n_dots <= FULL_SEARCH_MAX and time_used < (n ** 2) * 0.75:
+    if n ** 2 - n_dots <= FULL_SEARCH_MAX and time_used < (n ** 2) * 0.6:
         return get_all_moves(curr_state), False
 
     return_moves = []
@@ -77,7 +77,7 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
     return_moves = set(return_moves)
 
     # If acceptable number of moves, stop move propagation (greedy search)
-    if len(return_moves) > curr_state.n / 3:
+    if len(return_moves) > curr_state.n / 5:
         return list(return_moves), False
 
     n_directions_to_search = 4
@@ -91,17 +91,17 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
 
     return_moves.update(defensive_moves)
 
-    # If still too small, add some offensive moves
-    if len(return_moves) < curr_state.n / 2:
+    if len(return_moves) > curr_state.n / 1.3:
         return list(return_moves), True
 
+    # If still too small, add some offensive moves
     if player == "red":
         offensive_moves = get_defensive_moves(curr_state, red_tokens, n_directions_to_search)
     else:
         offensive_moves = get_defensive_moves(curr_state, blue_tokens, n_directions_to_search)
     return_moves.update(offensive_moves)
 
-    if len(return_moves) < curr_state.n:
+    if len(return_moves) < curr_state.n / 1.15:
         moves_to_go = int(n - len(return_moves))
         for i in range(moves_to_go):
             x, y = random.randint(0, n - 1), random.randint(0, n - 1)

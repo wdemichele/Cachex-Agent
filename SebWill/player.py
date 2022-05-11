@@ -92,11 +92,13 @@ class Player:
                         self.token_to_build_on = corner
                         return self._PLACE + corner
 
+        # If almost out of time
+        if self.timer.count > self.board.n ** 2 - self.board.n * 0.8:
+            return self.fallback_strategy()
         # Small board, go straight to minimax
         if self.board.n < 6:
             move = self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
             if move is None:
-                print("Movefinding error")
                 return self.fallback_strategy()
             return self._PLACE + move
 
@@ -104,18 +106,14 @@ class Player:
         if self.n_tokens >= (self.board.n * 1.5):
             move = self.alpha_beta_minimax(0, self.board, True, util.MINIMAX_MIN, util.MINIMAX_MAX)[1]
             if move is None:
-                print("Movefinding error")
                 return self.fallback_strategy()
             return self._PLACE + move
 
-        # Start with a very defensive outlook, 4 in 5 chance of going for block over build
         if self.n_tokens <= self.board.n / 2:
-            if randint(0, 4) % 5 == 0:
-                return self.build()
             return self.block()
 
         # If past start, but board still to big to go for full minimax, 1 in 3 chance of build over block
-        if randint(0, 2) % 3 == 0:
+        if randint(0, 4) % 5 == 0:
             return self.build()
         return self.block()
 
@@ -182,6 +180,7 @@ class Player:
         return self.fallback_strategy()
 
     def fallback_strategy(self):
+        print("Fallback strat")
         while True:
             x = randint(0, self.board.n)
             y = randint(0, self.board.n)

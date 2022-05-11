@@ -33,7 +33,7 @@ class EvalTimer:
 
 
 _SKIP_FACTOR = 2
-_TIMER_FACTOR = 3.0
+_TIMER_FACTOR = 3.2
 _MIN = -70
 _MAX = 70
 
@@ -63,7 +63,7 @@ def evaluate(player: str, opposition: str, game_state: board.Board, piece_square
 
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
 
-    if _EVAL_TIMER.get_curr_turns() > (1.8 * game_state.n) / _TIMER_FACTOR:
+    if _EVAL_TIMER.get_turn_time() > (1.8 * game_state.n) / _TIMER_FACTOR:
         return f4 * w4
 
     elif _EVAL_TIMER.get_turn_time() > (1.3 * game_state.n) / _TIMER_FACTOR:
@@ -72,7 +72,7 @@ def evaluate(player: str, opposition: str, game_state: board.Board, piece_square
         return w3 * f3 + w4 * f4 + w5 * f5
 
     # If less than a third of the game has been played or we're running low on time, dont use heavy factor
-    elif n_tokens < (game_state.n ** 2) / 4 or _EVAL_TIMER.get_turn_time() > game_state.n / _TIMER_FACTOR:
+    elif n_tokens < (game_state.n ** 2) / 4 or _EVAL_TIMER.get_turn_time() > (0.9 * game_state.n) / _TIMER_FACTOR:
         f2 = get_longest_connected_coord(player, opposition, game_state)
         f3 = get_potential_to_be_captured(player, opposition, game_state)
         f5 = get_piece_square_dominance(player, game_state, piece_square_table)
@@ -85,22 +85,6 @@ def evaluate(player: str, opposition: str, game_state: board.Board, piece_square
     return f1 * w1 + w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
 
 
-def state_eval(player: str, opposition: str, game_state: board, piece_square_table: pieceSquareTable, n_tokens):
-    w1 = 1
-    w2 = 0.8
-    w3 = 0.4
-    w4 = 0.4
-    if game_state.n < 6:
-        w5 = 0.33
-    else:
-        w5 = 1.6
-    if player == "blue":
-        if n_tokens < game_state.n * 2 - 2:
-            return get_longest_connected_coord(player, opposition, game_state)
-        return get_shortest_win_path(game_state, player, opposition, game_state.n - 1)
-    return get_longest_connected_coord(player, opposition, game_state)
-
-
 def get_longest_connected_coord(player, opposition, game_state):
     player_max = -1
     opp_max = -1
@@ -110,6 +94,10 @@ def get_longest_connected_coord(player, opposition, game_state):
                 player_max = max(len(game_state.connected_coords((i, j))), player_max)
             elif game_state.__getitem__((i, j)) == opposition:
                 opp_max = max(len(game_state.connected_coords((i, j))), opp_max)
+    if player_max > game_state.n - 3:
+        player_max *= 2
+    if opp_max > game_state.n - 3:
+        opp_max *= 2
     return player_max - opp_max
 
 
