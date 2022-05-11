@@ -2,12 +2,13 @@ from SebWill import structures
 
 PLAYER, OPPOSITION, EMPTY = 'red', 'blue', None
 
+
 class AStarNode:
     def __init__(self, parent, location):
         self.parent = parent
         self.location = location
 
-        # G should techincally be 1, doesnt matter overall in algorithm so leave 0
+        # G should technically be 1, doesnt matter overall in algorithm so leave 0
         self.g = 0
         self.h = 0
         self.f = 0
@@ -23,22 +24,20 @@ class AStarNode:
 
 
 def searchStart(board, start, goal, player):
-
     # Save start and goal
     start = structures.Location(start[0], start[1])
     goal = structures.Location(goal[0], goal[1])
     final_path = aStarSearch(start, goal, board, player)
     if final_path is None:
         return 70
-    # final_path.printPath(board, player)
-    # board.printBoard()
     return final_path.getLength(board, player)
 
-def bonusHeuristic(Board, location1, location2, noCostColour): 
-    steps = 0 if Board.__getitem__((location1.row,location1.column)) == noCostColour else 1
+
+def bonusHeuristic(Board, location1, location2, noCostColour):
+    steps = 0 if Board.__getitem__((location1.row, location1.column)) == noCostColour else 1
     if location1 == location2:
         return steps
-    steps += 0 if Board.__getitem__((location2.row,location2.column)) == noCostColour else 1
+    steps += 0 if Board.__getitem__((location2.row, location2.column)) == noCostColour else 1
 
     deltaX = abs(location1.row - location2.row)
     deltaY = abs(location1.column - location2.column)
@@ -53,23 +52,23 @@ def bonusHeuristic(Board, location1, location2, noCostColour):
     if location1.column > location2.column:
         yDir = -1
 
-    for x in range(location1.row, location2.row + xDir*1, xDir):
+    for x in range(location1.row, location2.row + xDir * 1, xDir):
         xAvail.append(x)
-    for y in range(location1.column, location2.column + yDir*1, yDir):
+    for y in range(location1.column, location2.column + yDir * 1, yDir):
         yAvail.append(y)
 
     for col in yAvail:
         for row in range(Board.n):
-            if Board.__getitem__((row,col)) == noCostColour:
-                visited.append([row,col])
+            if Board.__getitem__((row, col)) == noCostColour:
+                visited.append([row, col])
                 yFree += 1
-                break 	# max one free node per column
+                break  # max one free node per column
     for row in xAvail:
         for col in range(Board.n):
-            if Board.__getitem__((row,col)) == noCostColour:
-                if [row,col] not in visited:
-                    xFree += 1 
-                    break 	# max one free node per row
+            if Board.__getitem__((row, col)) == noCostColour:
+                if [row, col] not in visited:
+                    xFree += 1
+                    break  # max one free node per row
 
     return max(deltaX - xFree, 0) + max(deltaY - yFree, 0) + steps
 
@@ -89,7 +88,6 @@ def aStarSearch(start, goal, Board, player):
         # Get head of queue
         curr = queue.pop()
         checked_list.append(curr.location)
-
 
         if curr == goalNode:
             while curr is not None:
@@ -119,6 +117,7 @@ def aStarSearch(start, goal, Board, player):
                 queue.insert(newMoveNode)
     return None
 
+
 def getAdjacentSpots(Board, location, noCostColour, all):
     retVal = []
     spotsToCheck = [[0, -1], [-1, 0], [-1, 1], [0, 1], [1, 0], [1, -1]]
@@ -128,11 +127,11 @@ def getAdjacentSpots(Board, location, noCostColour, all):
             continue
         else:
             if all:
-                spot = structures.Spot(new_location, Board.__getitem__((new_location.row,new_location.column)))
+                spot = structures.Spot(new_location, Board.__getitem__((new_location.row, new_location.column)))
                 retVal.append(spot)
-            else:    
-                if Board.__getitem__((new_location.row,new_location.column)) == None:
+            else:
+                if Board.__getitem__((new_location.row, new_location.column)) == None:
                     retVal.append(new_location)
-                elif Board.__getitem__((new_location.row,new_location.column)) == noCostColour:
+                elif Board.__getitem__((new_location.row, new_location.column)) == noCostColour:
                     retVal.append(new_location)
     return retVal

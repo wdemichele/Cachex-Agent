@@ -1,8 +1,6 @@
 from SebWill.structures import pieceSquareTable
 from SebWill import board
 from SebWill import aStarSearch
-from SebWill import capturable
-import copy
 from SebWill import timer
 
 
@@ -33,7 +31,7 @@ class EvalTimer:
 
 
 _SKIP_FACTOR = 2
-_TIMER_FACTOR = 3.2
+_TIMER_FACTOR = 3.3
 _MIN = -70
 _MAX = 70
 
@@ -63,23 +61,24 @@ def evaluate(player: str, opposition: str, game_state: board.Board, piece_square
 
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
 
-    if _EVAL_TIMER.get_turn_time() > (1.8 * game_state.n) / _TIMER_FACTOR:
+    if _EVAL_TIMER.get_turn_time() > (1.6 * game_state.n) / _TIMER_FACTOR:
         return f4 * w4
 
-    elif _EVAL_TIMER.get_turn_time() > (1.3 * game_state.n) / _TIMER_FACTOR:
+    elif _EVAL_TIMER.get_turn_time() > (1.2 * game_state.n) / _TIMER_FACTOR:
         f3 = get_potential_to_be_captured(player, opposition, game_state)
         f5 = get_piece_square_dominance(player, game_state, piece_square_table)
         return w3 * f3 + w4 * f4 + w5 * f5
 
     # If less than a third of the game has been played or we're running low on time, dont use heavy factor
-    elif n_tokens < (game_state.n ** 2) / 4 or _EVAL_TIMER.get_turn_time() > (0.9 * game_state.n) / _TIMER_FACTOR:
+    elif n_tokens < (game_state.n ** 2) / 4 or _EVAL_TIMER.get_turn_time() > (0.9 * game_state.n) / _TIMER_FACTOR or \
+            game_state.n > 12:
         f2 = get_longest_connected_coord(player, opposition, game_state)
         f3 = get_potential_to_be_captured(player, opposition, game_state)
         f5 = get_piece_square_dominance(player, game_state, piece_square_table)
         return w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
 
     f2 = get_longest_connected_coord(player, opposition, game_state)
-    f1 = get_shortest_win_path(game_state, player, opposition, game_state.n - _SKIP_FACTOR)
+    f1 = get_shortest_win_path(game_state, player, opposition, int(game_state.n / _SKIP_FACTOR))
     f3 = get_potential_to_be_captured(player, opposition, game_state)
     f5 = get_piece_square_dominance(player, game_state, piece_square_table)
     return f1 * w1 + w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
@@ -196,7 +195,6 @@ def getShortestWin(game_state: board.Board, player: str, opposition: str, skipFa
     shortest_dist = _MAX
     for i in range(0, game_state.n, skipFactor):
         for j in range(0, game_state.n, skipFactor):
-
             # check for available start state within breadth of skip factor
             new_i, new_j = i, j
             for k in range(skipFactor - 1):
@@ -224,14 +222,14 @@ def getShortestWin(game_state: board.Board, player: str, opposition: str, skipFa
                 path_dist = aStarSearch.searchStart(game_state, [new_i, 0], [new_j, game_state.n - 1], player)
                 if path_dist < shortest_dist:
                     shortest_dist = path_dist
-                    if shortest_dist == 0:
+
+                    if shortest_dist <= 1:
                         return _MIN
             else:
                 path_dist = aStarSearch.searchStart(game_state, [0, new_i], [game_state.n - 1, new_j], player)
                 if path_dist < shortest_dist:
                     shortest_dist = path_dist
-                    if shortest_dist == 0:
-                        print("zero cost path detected")
+                    if shortest_dist <= 1:
                         return _MIN
     return shortest_dist
 

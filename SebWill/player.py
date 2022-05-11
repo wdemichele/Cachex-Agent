@@ -9,7 +9,6 @@ class Player:
     _PLACE = ("PLACE",)
 
     def __init__(self, player, n):
-
         """
         Called once at the beginning of a game to initialise this player.
         Set up an internal representation of the game state.
@@ -93,7 +92,7 @@ class Player:
                         return self._PLACE + corner
 
         # If almost out of time
-        if self.timer.count > self.board.n ** 2 - self.board.n * 0.8:
+        if self.timer.count > self.board.n ** 2 - self.board.n * 0.9:
             return self.fallback_strategy()
         # Small board, go straight to minimax
         if self.board.n < 6:
@@ -118,6 +117,7 @@ class Player:
         return self.block()
 
     def build(self):
+        """Returns a move that naively attempts to build a path"""
         steps = util.get_left_hex_steps()
         if self.player == "blue":
             if self.token_to_build_on[1] >= self.board.n / 2:
@@ -135,6 +135,7 @@ class Player:
         return self.fallback_strategy()
 
     def block(self):
+        """Returns a move that naively attempts to block a path"""
         spot_closest_to_end = None
         min_dist = 100
         direction_to_block = None
@@ -180,7 +181,7 @@ class Player:
         return self.fallback_strategy()
 
     def fallback_strategy(self):
-        print("Fallback strat")
+        """Returns a randomly generated move"""
         while True:
             x = randint(0, self.board.n)
             y = randint(0, self.board.n)
@@ -189,7 +190,7 @@ class Player:
 
     def alpha_beta_minimax(self, depth: int, game_state: util.board.Board, is_maximizing: bool, alpha: int, beta: int,
                            is_quiescent=True):
-
+        """Returns a move based on the Minimax search algorithm with alpha-beta pruning implemented"""
         if depth == util.get_depth_limit(self.timer.count, self.board.n, is_quiescent):
             return util.eval_func(self.player, self.opposition, game_state, self.piece_square_table,
                                   self.n_tokens, self.n_turns), (0, 0)

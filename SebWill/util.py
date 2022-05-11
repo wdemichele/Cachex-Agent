@@ -39,6 +39,7 @@ _PLACE = ("PLACE",)
 
 
 def make_state_from_move(curr_state: board.Board, move: Tuple[int, int], player: str):
+    """Makes a new board from a move"""
     new_board = copy.deepcopy(curr_state)
     new_board.place(player, move)
     return new_board
@@ -46,10 +47,11 @@ def make_state_from_move(curr_state: board.Board, move: Tuple[int, int], player:
 
 def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_tokens: list,
                          blue_tokens: list, time_used: float):
+    """Returns a list of unique moves given any game board state and the player whose turn it is"""
     n = curr_state.n
 
-    # Feasible to try perfect play (if less than forty percent of board has been placed on and board is not too big)
-    if n ** 2 - n_dots <= FULL_SEARCH_MAX and time_used < (n ** 2) * 0.6:
+    # Feasible to try perfect play (if less than forty percent of board has been placed  on and board is not too big)
+    if n ** 2 - n_dots <= FULL_SEARCH_MAX and time_used < (n ** 2) * 0.6 and not curr_state.n > 10:
         return get_all_moves(curr_state), False
 
     return_moves = []
@@ -59,7 +61,7 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
         opposition = "red"
 
     # look for capture and fork opportunities against opposition
-    opp_occupy = getColourPieces(curr_state, opposition)
+    opp_occupy = get_colour_pieces(curr_state, opposition)
     for location in opp_occupy:
         captures = capturable.is_captureable(curr_state, location[0], location[1], curr_state)
         return_moves.extend(captures)
@@ -67,7 +69,7 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
         return_moves.extend(forks)
 
     # prevent capture and fork opportunities against player
-    player_occupy = getColourPieces(curr_state, player)
+    player_occupy = get_colour_pieces(curr_state, player)
     for location in player_occupy:
         captures = capturable.is_captureable(curr_state, location[0], location[1], opposition)
         return_moves.extend(captures)
@@ -77,7 +79,7 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
     return_moves = set(return_moves)
 
     # If acceptable number of moves, stop move propagation (greedy search)
-    if len(return_moves) > curr_state.n / 5:
+    if len(return_moves) > n / 6:
         return list(return_moves), False
 
     n_directions_to_search = 4
@@ -91,7 +93,7 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
 
     return_moves.update(defensive_moves)
 
-    if len(return_moves) > curr_state.n / 1.3:
+    if len(return_moves) > n / 1.5:
         return list(return_moves), True
 
     # If still too small, add some offensive moves
@@ -101,7 +103,7 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
         offensive_moves = get_defensive_moves(curr_state, blue_tokens, n_directions_to_search)
     return_moves.update(offensive_moves)
 
-    if len(return_moves) < curr_state.n / 1.15:
+    if len(return_moves) < n / 1.15:
         moves_to_go = int(n - len(return_moves))
         for i in range(moves_to_go):
             x, y = random.randint(0, n - 1), random.randint(0, n - 1)
@@ -132,10 +134,6 @@ def get_defensive_moves(curr_state: board.Board, opp_tokens: List[Tuple[int, int
     return return_moves
 
 
-def get_offensive_moves(curr_state: board.Board, player, player_tokens: List[Tuple[int, int]], n_moves: int):
-    pass
-
-
 def get_right_hex_steps():
     return _RIGHT_HEX_STEPS
 
@@ -162,6 +160,7 @@ def get_colour_pieces(state: board.Board, colour):
 
 
 def get_depth_limit(time_spent: float, board_size: int, is_quiescent=True):
+    """Gets the depth limit for alpha-beta minimax"""
     # if lots of time (90% of time limit or greater) and smaller board
     quiescent = 0 if is_quiescent else 1
     if time_spent < (board_size ** 2) / 15.0 and board_size < 4:
@@ -174,7 +173,7 @@ def get_depth_limit(time_spent: float, board_size: int, is_quiescent=True):
         return DEPTH_LIMIT - 3
 
 
-def getColourPieces(board, colour):
+def get_colour_pieces(board, colour):
     colours = []
     for i in reversed(range(board.n)):
         for j in range(board.n):

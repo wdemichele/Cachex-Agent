@@ -2,10 +2,12 @@ import time
 
 
 class TimerError(Exception):
-    """Error in time usage"""
+    """Error in timer usage"""
 
 
 class Timer:
+    """Loosely based on the timer class written by Geir Arne Hjelle in the article
+    https://realpython.com/python-timer/"""
     def __init__(self):
         self.count = 0
         self.start_time = None
