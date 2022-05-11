@@ -1,4 +1,7 @@
 import random
+
+from typing import Tuple, List
+
 from SebWill.structures import pieceSquareTable
 
 from SebWill import board
@@ -35,7 +38,7 @@ _STEAL = ("STEAL",)
 _PLACE = ("PLACE",)
 
 
-def make_state_from_move(curr_state: board.Board, move: tuple((int, int)), player: str):
+def make_state_from_move(curr_state: board.Board, move: Tuple[int, int], player: str):
     new_board = copy.deepcopy(curr_state)
     new_board.place(player, move)
     return new_board
@@ -46,8 +49,8 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
     n = curr_state.n
 
     # Feasible to try perfect play (if less than forty percent of board has been placed on and board is not too big)
-    if n_dots <= (0.4 * n ** 2) and n ** 2 <= FULL_SEARCH_MAX:
-        return get_all_moves(curr_state)
+    if n ** 2 - n_dots <= FULL_SEARCH_MAX and time_used < (n ** 2) * 0.75:
+        return get_all_moves(curr_state), False
 
     return_moves = []
 
@@ -56,59 +59,58 @@ def get_reasonable_moves(curr_state: board.Board, n_dots: int, player: str, red_
         opposition = "red"
 
     # look for capture and fork opportunities against opposition
-    oppOccupy = getColourPieces(curr_state, opposition)
-    for location in oppOccupy:
+    opp_occupy = getColourPieces(curr_state, opposition)
+    for location in opp_occupy:
         captures = capturable.is_captureable(curr_state, location[0], location[1], curr_state)
         return_moves.extend(captures)
         forks = capturable.is_forkable(curr_state, location[0], location[1], player)
         return_moves.extend(forks)
 
     # prevent capture and fork opportunities against player
-    playerOccupy = getColourPieces(curr_state, player)
-    for location in playerOccupy:
+    player_occupy = getColourPieces(curr_state, player)
+    for location in player_occupy:
         captures = capturable.is_captureable(curr_state, location[0], location[1], opposition)
         return_moves.extend(captures)
         forks = capturable.is_forkable(curr_state, location[0], location[1], opposition)
         return_moves.extend(forks)
 
-    return_moves = list(set(return_moves))
+    return_moves = set(return_moves)
 
-    if len(return_moves) >= 0:
-        return (return_moves, False)
-    
-    steps = _HEX_STEPS
+    # If acceptable number of moves, stop move propagation (greedy search)
+    if len(return_moves) > curr_state.n / 3:
+        return list(return_moves), False
+
     n_directions_to_search = 4
-
     if time_used > (n ** 2) * 0.4 or n >= 10:
         n_directions_to_search = 2
+    # Otherwise add some defensive moves
+    if player == "red":
+        defensive_moves = get_defensive_moves(curr_state, blue_tokens, n_directions_to_search)
+    else:
+        defensive_moves = get_defensive_moves(curr_state, red_tokens, n_directions_to_search)
 
-    for i in range(n_directions_to_search):
-        move = steps[i]
-        first_tokens = blue_tokens
-        second_tokens = red_tokens
-        if player == "blue":
-            first_tokens = red_tokens
-            second_tokens = blue_tokens
-        for spot in first_tokens:
-            new_spot = tuple(map(lambda x, y: x + y, spot, move))
-            if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
-                return_moves.append(new_spot)
-        for spot in second_tokens:
-            new_spot = tuple(map(lambda x, y: x + y, spot, move))
-            if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
-                return_moves.append(new_spot)
-        if len(return_moves) > MOVE_MAX_LIMIT:
-            return list(set(return_moves)), True
+    print("Adding defense")
+    return_moves.update(defensive_moves)
 
-    # if amount of moves not ideal for good play
-    if len(return_moves) < (MOVE_MIN_LIMIT_FACTOR * n):
-        moves_to_go = int(MOVE_MIN_LIMIT_FACTOR * n - len(return_moves))
+    # If still too small, add some offensive moves
+    if len(return_moves) < curr_state.n / 2:
+        return list(return_moves), True
+
+    if player == "red":
+        offensive_moves = get_defensive_moves(curr_state, red_tokens, n_directions_to_search)
+    else:
+        offensive_moves = get_defensive_moves(curr_state, blue_tokens, n_directions_to_search)
+    print("adding offense")
+    return_moves.update(offensive_moves)
+
+    if len(return_moves) < curr_state.n:
+        moves_to_go = int(n - len(return_moves))
         for i in range(moves_to_go):
             x, y = random.randint(0, n - 1), random.randint(0, n - 1)
             if curr_state.inside_bounds((x, y)) and not curr_state.is_occupied((x, y)):
                 if (x, y) not in return_moves:
-                    return_moves.append((x, y))
-    return list(set(return_moves)), True
+                    return_moves.add((x, y))
+    return list(return_moves), True
 
 
 def get_all_moves(curr_state: board.Board):
@@ -119,6 +121,21 @@ def get_all_moves(curr_state: board.Board):
             if not curr_state.is_occupied(spot):
                 return_moves.append(spot)
     return return_moves
+
+
+def get_defensive_moves(curr_state: board.Board, opp_tokens: List[Tuple[int, int]], n_moves: int):
+    return_moves = set()
+    for token in opp_tokens:
+        for i in range(n_moves):
+            move = _HEX_STEPS[random.randint(0, 5)]
+            new_spot = tuple(map(lambda x, y: x + y, token, move))
+            if curr_state.inside_bounds(new_spot) and not curr_state.is_occupied(new_spot):
+                return_moves.add(new_spot)
+    return return_moves
+
+
+def get_offensive_moves(curr_state: board.Board, player, player_tokens: List[Tuple[int, int]], n_moves: int):
+    pass
 
 
 def get_right_hex_steps():

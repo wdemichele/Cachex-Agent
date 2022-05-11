@@ -51,29 +51,37 @@ _ADD = lambda a, b: (a[0] + b[0], a[1] + b[1])
 _EVAL_TIMER = EvalTimer()
 
 
-def evaluate(player: str, opposition: str, game_state: board, piece_square_table: pieceSquareTable,
+def evaluate(player: str, opposition: str, game_state: board.Board, piece_square_table: pieceSquareTable,
              n_tokens, n_turns):
     # if new move, reset the move timer
     if _EVAL_TIMER.get_curr_turns() != n_turns:
         _EVAL_TIMER.new_move(n_turns)
 
-    w1, w2, w3, w4, w5 = 1.2, 0.8, 1.3, 0.7, 0.3
+    w1, w2, w3, w4, w5 = 1.0, 1.12, 0.73, 0.4, 0.32
+    if game_state.n > 5:
+        w5 = 0.12
 
-    f3 = get_potential_to_be_captured(player, opposition, game_state)
     f4 = get_token_numerical_supremacy(player, opposition, game_state)
-    f5 = get_piece_square_dominance(player, game_state, piece_square_table)
 
-    if _EVAL_TIMER.get_turn_time() > (1.4 * game_state.n) / _TIMER_FACTOR:
-        w3 = 1
+    if _EVAL_TIMER.get_curr_turns() > (1.8 * game_state.n) / _TIMER_FACTOR:
+        return f4 * w4
+
+    elif _EVAL_TIMER.get_turn_time() > (1.3 * game_state.n) / _TIMER_FACTOR:
+        f3 = get_potential_to_be_captured(player, opposition, game_state)
+        f5 = get_piece_square_dominance(player, game_state, piece_square_table)
         return w3 * f3 + w4 * f4 + w5 * f5
+
     # If less than a third of the game has been played or we're running low on time, dont use heavy factor
     elif n_tokens < (game_state.n ** 2) / 4 or _EVAL_TIMER.get_turn_time() > game_state.n / _TIMER_FACTOR:
-        w2 = 1
         f2 = get_longest_connected_coord(player, opposition, game_state)
+        f3 = get_potential_to_be_captured(player, opposition, game_state)
+        f5 = get_piece_square_dominance(player, game_state, piece_square_table)
         return w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
 
     f2 = get_longest_connected_coord(player, opposition, game_state)
     f1 = get_shortest_win_path(game_state, player, opposition, game_state.n - _SKIP_FACTOR)
+    f3 = get_potential_to_be_captured(player, opposition, game_state)
+    f5 = get_piece_square_dominance(player, game_state, piece_square_table)
     return f1 * w1 + w2 * f2 + w3 * f3 + w4 * f4 + w5 * f5
 
 
